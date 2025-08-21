@@ -1,0 +1,86 @@
+{
+  "name": "ieee-sps-gujarat",
+  "version": "1.0.0",
+  "private": true,
+  "description": "IEEE Signal Processing Society Gujarat Chapter Website",
+  "homepage": "https://ieee-sps-gujarat.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ieee-sps-gujarat/website.git"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.55.0",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "date-fns": "^2.29.3",
+    "emailjs-com": "^3.2.0",
+    "framer-motion": "^10.0.0",
+    "lucide-react": "^0.263.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-helmet-async": "^1.3.0",
+    "react-hook-form": "^7.43.0",
+    "react-hot-toast": "^2.4.0",
+    "react-intersection-observer": "^9.4.3",
+    "react-markdown": "^8.0.7",
+    "react-query": "^3.39.3",
+    "react-router-dom": "^6.30.1",
+    "react-syntax-highlighter": "^15.5.0",
+    "remark-gfm": "^3.0.1",
+    "swiper": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.27",
+    "@types/react-dom": "^18.0.10",
+    "@vitejs/plugin-react": "^3.1.0",
+    "autoprefixer": "^10.4.13",
+    "eslint": "^8.35.0",
+    "eslint-plugin-react": "^7.32.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.21",
+    "prettier": "^2.8.4",
+    "prettier-plugin-tailwindcss": "^0.2.3",
+    "tailwindcss": "^3.2.7",
+    "vite": "^4.1.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "lint:fix": "eslint src --ext js,jsx --fix",
+    "format": "prettier --write \"src/**/*.{js,jsx,json,css,md}\"",
+    "type-check": "tsc --noEmit",
+    "prepare": "husky install"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "keywords": [
+    "IEEE",
+    "Signal Processing",
+    "Gujarat",
+    "Research",
+    "Academic",
+    "Engineering",
+    "Technology"
+  ],
+  "author": "IEEE SPS Gujarat Chapter",
+  "license": "MIT"
+}
