@@ -1,453 +1,675 @@
-// src/pages/admin/EventForm.jsx
+// components/admin/EventForm.jsx
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Calendar, Clock, MapPin, Upload, X, Link as LinkIcon, Tag, AlertTriangle } from 'lucide-react';
+import { createEvent, updateEvent, getEventById } from '../../services/eventService';
+import { uploadEventPoster, checkStorageAccess } from '../../services/storageService';
+import { STORAGE_BUCKET } from '../../services/storageService';
 import { supabase } from '../../services/supabase';
-import { 
-  Calendar, MapPin, Clock, Upload, AlertCircle, 
-  X, ArrowLeft, CheckCircle 
-} from 'lucide-react';
+
+const EVENT_TYPES = [
+  'Workshop',
+  'Lecture',
+  'Competition',
+  'Conference',
+  'Webinar',
+  'Seminar',
+  'Other'
+];
 
 const EventForm = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
+  const { id } = useParams(); // For editing existing events
   const isEditMode = !!id;
   
+  // Form state
   const [formData, setFormData] = useState({
     title: '',
-    date: '',
-    time: '',
-    location: '',
-    type: 'Workshop',
     description: '',
-    featured: false,
-    image: null
+    event_date: '',
+    event_time: '',
+    location: '',
+    event_type: 'Workshop',
+    registration_url: '',
+    is_featured: false,
+    status: 'upcoming'
   });
   
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(false);
+  // UI state
+  const [posterFile, setPosterFile] = useState(null);
+  const [posterPreview, setPosterPreview] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [storageStatus, setStorageStatus] = useState({ checking: true, error: null, details: null });
+  const [successMessage, setSuccessMessage] = useState('');
   
-  // Fetch event data if in edit mode
+  // Check storage access
   useEffect(() => {
-    if (isEditMode) {
-      const fetchEvent = async () => {
+    const checkStorage = async () => {
+      setStorageStatus({ checking: true, error: null, details: null });
+      const { exists, error, details } = await checkStorageAccess();
+      
+      if (error) {
+        console.error('Storage access error:', error);
+      }
+      
+      setStorageStatus({ 
+        checking: false, 
+        error: error ? error.message : null,
+        details: details
+      });
+    };
+    
+    checkStorage();
+  }, []);
+  
+  // Load existing event data if in edit mode
+  useEffect(() => {
+    const loadEvent = async () => {
+      if (isEditMode) {
+        setIsLoading(true);
         try {
-          setLoading(true);
-          const { data, error } = await supabase
-            .from('events')
-            .select('*')
-            .eq('id', id)
-            .single();
-          
+          const { data, error } = await getEventById(id);
           if (error) throw error;
           
           if (data) {
-            // Format date for input field (YYYY-MM-DD)
-            const formattedDate = data.date.split('T')[0];
-            
             setFormData({
-              ...data,
-              date: formattedDate
+              title: data.title || '',
+              description: data.description || '',
+              event_date: data.event_date || data.date || '',
+              event_time: data.event_time || data.time || '',
+              location: data.location || '',
+              event_type: data.event_type || data.type || 'Workshop',
+              registration_url: data.registration_url || '',
+              is_featured: data.featured || false,
+              status: data.status || 'upcoming'
             });
             
-            // Set image preview if available
-            if (data.image) {
-              setImagePreview(data.image);
+            if (data.image_url) {
+              setPosterPreview(data.image_url);
+            } else if (data.image) {
+              setPosterPreview(data.image);
             }
           }
-        } catch (error) {
-          console.error('Error fetching event:', error);
-          setError('Failed to fetch event data. Please try again later.');
+        } catch (err) {
+          console.error('Error loading event:', err);
+          setError('Failed to load event details');
         } finally {
-          setLoading(false);
+          setIsLoading(false);
         }
-      };
-      
-      fetchEvent();
-    }
+      }
+    };
+    
+    loadEvent();
   }, [id, isEditMode]);
   
-  // Handle form input changes
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
+    setFormData(prev => ({
+      ...prev,
       [name]: type === 'checkbox' ? checked : value
-    });
+    }));
   };
   
-  // Handle image upload
-  const handleImageChange = (e) => {
+  // Handle poster file selection
+  const handlePosterChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setImageFile(file);
-      
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    
+    // Validate file type and size
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    
+    if (!validTypes.includes(file.type)) {
+      setError('Please upload a JPG, PNG, WebP, or GIF image');
+      return;
+    }
+    
+    if (file.size > maxSize) {
+      setError('Image must be less than 5MB');
+      return;
+    }
+    
+    setPosterFile(file);
+    setError('');
+    
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPosterPreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+  };
+  
+  // Remove poster preview
+  const handleRemovePoster = () => {
+    setPosterFile(null);
+    
+    // If we're editing and there was an existing poster, keep it
+    if (isEditMode && (formData.image_url || formData.image)) {
+      setPosterPreview(formData.image_url || formData.image);
+    } else {
+      setPosterPreview('');
     }
   };
   
-  // Remove image
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setImagePreview(null);
-    setFormData({
-      ...formData,
-      image: null
-    });
+  // Form validation
+  const validateForm = () => {
+    if (!formData.title.trim()) {
+      setError('Title is required');
+      return false;
+    }
+    
+    if (!formData.event_date) {
+      setError('Date is required');
+      return false;
+    }
+    
+    if (!formData.location.trim()) {
+      setError('Location is required');
+      return false;
+    }
+    
+    if (formData.registration_url && !isValidUrl(formData.registration_url)) {
+      setError('Please enter a valid registration URL');
+      return false;
+    }
+    
+    return true;
   };
   
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  // Check if URL is valid
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+  
+  // Test storage upload (debug function)
+  const testStorageUpload = async () => {
+    if (!posterFile) {
+      setError('Please select a file first');
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setError('');
     
     try {
-      setLoading(true);
-      setError(null);
+      // First, check authentication
+      const { data: { session }, error: authError } = await supabase.auth.getSession();
       
-      let imageUrl = formData.image;
-      
-      // Upload image if selected
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `events/${fileName}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('images')
-          .upload(filePath, imageFile);
-        
-        if (uploadError) throw uploadError;
-        
-        // Get public URL
-        const { data } = supabase.storage
-          .from('images')
-          .getPublicUrl(filePath);
-        
-        imageUrl = data.publicUrl;
+      if (authError || !session) {
+        throw new Error('Authentication required: ' + (authError ? authError.message : 'No active session'));
       }
       
-      // Prepare data for saving
-      const eventData = {
-        ...formData,
-        image: imageUrl
-      };
+      console.log('Authenticated as:', session.user.email);
       
-      let result;
+      // Test the upload
+      const { url, error: uploadError } = await uploadEventPoster(posterFile);
       
-      if (isEditMode) {
-        // Update existing event
-        result = await supabase
-          .from('events')
-          .update(eventData)
-          .eq('id', id);
-      } else {
-        // Insert new event
-        result = await supabase
-          .from('events')
-          .insert([eventData]);
+      if (uploadError) {
+        throw new Error('Upload failed: ' + uploadError.message);
       }
       
-      if (result.error) throw result.error;
+      setSuccessMessage(`Test upload successful! URL: ${url}`);
+      console.log('Upload success, URL:', url);
       
-      setSuccess(true);
-      
-      // Redirect after success
-      setTimeout(() => {
-        navigate('/admin/events');
-      }, 1500);
-      
-    } catch (error) {
-      console.error('Error saving event:', error);
-      setError('Failed to save event. Please try again later.');
+    } catch (err) {
+      console.error('Test upload error:', err);
+      setError(err.message);
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
   
-  // Event types
-  const eventTypes = [
-    'Workshop',
-    'Lecture',
-    'Conference',
-    'Competition',
-    'Webinar',
-    'Networking'
-  ];
-
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  
+  if (!validateForm()) {
+    return;
+  }
+  
+  setIsSubmitting(true);
+  setError('');
+  
+  try {
+    // First, make sure we have a date value
+    if (!formData.event_date) {
+      throw new Error('Date is required');
+    }
+    
+    // Try to upload the poster if provided
+    let imageUrl = null;
+    if (posterFile) {
+      const { url, error: uploadError } = await uploadEventPoster(posterFile);
+      
+      if (uploadError) {
+        throw new Error(`Failed to upload poster: ${uploadError.message}`);
+      }
+      
+      imageUrl = url;
+    }
+    
+    // Create a database-compatible object with explicit date values
+    const eventData = {
+      title: formData.title,
+      description: formData.description,
+      // Ensure date is set (required field)
+      date: formData.event_date,
+      time: formData.event_time, 
+      location: formData.location,
+      type: formData.event_type,
+      featured: formData.is_featured,
+      // Images
+      image: imageUrl,
+      image_url: imageUrl,
+      poster_url: imageUrl,
+      // Other fields
+      current_participants: 0,
+      event_date: formData.event_date, // Also set event_date
+      event_time: formData.event_time,
+      event_type: formData.event_type,
+      registration_url: formData.registration_url
+    };
+    
+    console.log('Event data to submit:', eventData);
+    
+    // Direct Supabase call to avoid any issues
+    const { data, error } = await supabase
+      .from('events')
+      .insert([eventData])
+      .select()
+      .single();
+    
+    if (error) {
+      console.error('Supabase error:', error);
+      throw new Error(`Failed to create event: ${error.message}`);
+    }
+    
+    // Success! Show message and redirect
+    setSuccessMessage(`Event successfully created!`);
+    setTimeout(() => {
+      navigate('/admin/events');
+    }, 1500);
+    
+  } catch (err) {
+    console.error('Error saving event:', err);
+    setError(err.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+  
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="pt-24 min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        {/* Page Header */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-2 mb-2">
-            <Link 
-              to="/admin/events" 
-              className="text-blue-600 hover:text-blue-800 inline-flex items-center"
-            >
-              <ArrowLeft size={16} className="mr-1" />
-              <span>Back to Events</span>
-            </Link>
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-bold mb-6">
+        {isEditMode ? 'Edit Event' : 'Create New Event'}
+      </h1>
+      
+      {/* Storage Status Message */}
+      {storageStatus.checking ? (
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-blue-700">Checking storage access...</p>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">
-            {isEditMode ? 'Edit Event' : 'Add New Event'}
-          </h1>
-          <p className="text-gray-600">
-            {isEditMode 
-              ? 'Update the details of an existing event' 
-              : 'Create a new event for IEEE SPS Gujarat Chapter'
-            }
-          </p>
         </div>
-        
-        {/* Success Message */}
-        {success && (
-          <div className="bg-green-50 border-l-4 border-green-400 p-4 mb-8">
-            <div className="flex items-center">
-              <CheckCircle className="h-5 w-5 text-green-400 mr-2" />
-              <p className="text-green-700">
-                Event {isEditMode ? 'updated' : 'created'} successfully!
+      ) : storageStatus.error ? (
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <AlertTriangle className="h-5 w-5 text-yellow-400" />
+            </div>
+            <div className="ml-3">
+              <h3 className="text-sm font-medium text-yellow-800">Storage Access Issue</h3>
+              <div className="mt-2 text-sm text-yellow-700">
+                <p>{storageStatus.error}</p>
+                {storageStatus.details && (
+                  <p className="mt-1 text-xs">{storageStatus.details}</p>
+                )}
+                <div className="mt-3">
+                  <p className="font-medium">Make sure:</p>
+                  <ul className="list-disc pl-5 mt-1 text-xs">
+                    <li>The '{STORAGE_BUCKET}' bucket exists in your Supabase project</li>
+                    <li>You've set the proper access policies for the bucket</li>
+                    <li>You are signed in to your Supabase account</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-700">
+                Storage is accessible. {storageStatus.details}
               </p>
             </div>
           </div>
-        )}
-        
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-              <p className="text-red-700">{error}</p>
+        </div>
+      )}
+      
+      {error && (
+        <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
             </div>
           </div>
-        )}
+        </div>
+      )}
+      
+      {successMessage && (
+        <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-green-700">{successMessage}</p>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Event Title */}
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            Event Title <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            id="title"
+            name="title"
+            value={formData.title}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            placeholder="Enter event title"
+            required
+          />
+        </div>
         
-        {/* Event Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-md p-6">
-          <div className="space-y-6">
-            {/* Event Title */}
-            <div>
-              <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-                Event Title <span className="text-red-600">*</span>
-              </label>
+        {/* Date and Time */}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label htmlFor="event_date" className="block text-sm font-medium text-gray-700">
+              Date <span className="text-red-500">*</span>
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Calendar size={16} className="text-gray-400" />
+              </div>
               <input
-                type="text"
-                id="title"
-                name="title"
-                value={formData.title}
+                type="date"
+                id="event_date"
+                name="event_date"
+                value={formData.event_date}
                 onChange={handleChange}
+                className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter event title"
               />
             </div>
-            
-            {/* Date and Time */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-                  Date <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Calendar className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="date"
-                    id="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleChange}
-                    required
-                    className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                  />
-                </div>
+          </div>
+          
+          <div>
+            <label htmlFor="event_time" className="block text-sm font-medium text-gray-700">
+              Time
+            </label>
+            <div className="mt-1 relative rounded-md shadow-sm">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Clock size={16} className="text-gray-400" />
               </div>
-              
-              <div>
-                <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
-                  Time <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <Clock className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    id="time"
-                    name="time"
-                    value={formData.time}
-                    onChange={handleChange}
-                    required
-                    className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="e.g. 9:00 AM - 5:00 PM"
-                  />
-                </div>
-              </div>
+              <input
+                type="time"
+                id="event_time"
+                name="event_time"
+                value={formData.event_time}
+                onChange={handleChange}
+                className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              />
             </div>
-            
-            {/* Location and Event Type */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
-                  Location <span className="text-red-600">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <MapPin className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <input
-                    type="text"
-                    id="location"
-                    name="location"
-                    value={formData.location}
-                    onChange={handleChange}
-                    required
-                    className="pl-10 w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Enter event location"
+          </div>
+        </div>
+        
+        {/* Location */}
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium text-gray-700">
+            Location <span className="text-red-500">*</span>
+          </label>
+          <div className="mt-1 relative rounded-md shadow-sm">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <MapPin size={16} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              id="location"
+              name="location"
+              value={formData.location}
+              onChange={handleChange}
+              className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="Enter event location"
+              required
+            />
+          </div>
+        </div>
+        
+        {/* Event Type */}
+        <div>
+          <label htmlFor="event_type" className="block text-sm font-medium text-gray-700">
+            Event Type
+          </label>
+          <div className="mt-1 relative rounded-md shadow-sm">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Tag size={16} className="text-gray-400" />
+            </div>
+            <select
+              id="event_type"
+              name="event_type"
+              value={formData.event_type}
+              onChange={handleChange}
+              className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            >
+              {EVENT_TYPES.map(type => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        
+        {/* Registration URL */}
+        <div>
+          <label htmlFor="registration_url" className="block text-sm font-medium text-gray-700">
+            Registration Link
+          </label>
+          <div className="mt-1 relative rounded-md shadow-sm">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <LinkIcon size={16} className="text-gray-400" />
+            </div>
+            <input
+              type="url"
+              id="registration_url"
+              name="registration_url"
+              value={formData.registration_url}
+              onChange={handleChange}
+              className="pl-10 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+              placeholder="https://..."
+            />
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            Link to external registration page (optional)
+          </p>
+        </div>
+        
+        {/* Featured Checkbox */}
+        <div>
+          <div className="flex items-center">
+            <input
+              id="is_featured"
+              name="is_featured"
+              type="checkbox"
+              checked={formData.is_featured}
+              onChange={handleChange}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <label htmlFor="is_featured" className="ml-2 block text-sm text-gray-700">
+              Feature this event on homepage
+            </label>
+          </div>
+        </div>
+        
+        {/* Description */}
+        <div>
+          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+            Description
+          </label>
+          <textarea
+            id="description"
+            name="description"
+            rows={5}
+            value={formData.description}
+            onChange={handleChange}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            placeholder="Enter event description"
+          />
+        </div>
+        
+        {/* Event Poster */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Event Poster
+          </label>
+          
+          <div className="flex items-center space-x-6">
+            {/* Poster Preview */}
+            {posterPreview && (
+              <div className="relative">
+                <div className="h-60 w-44 rounded-md overflow-hidden border border-gray-300">
+                  <img
+                    src={posterPreview}
+                    alt="Poster Preview"
+                    className="h-full w-full object-cover"
                   />
                 </div>
-              </div>
-              
-              <div>
-                <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Type <span className="text-red-600">*</span>
-                </label>
-                <select
-                  id="type"
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                <button
+                  type="button"
+                  onClick={handleRemovePoster}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md hover:bg-red-600 transition-colors"
+                  aria-label="Remove poster"
                 >
-                  {eventTypes.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+            
+            {/* Upload Button */}
+            <div className="flex flex-col items-start">
+              <label
+                htmlFor="posterUpload"
+                className={`flex items-center justify-center px-4 py-2 border rounded-md shadow-sm text-sm font-medium 
+                  ${isSubmitting
+                    ? 'border-gray-300 bg-gray-100 text-gray-500 cursor-not-allowed'
+                    : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer'
+                  }`}
+              >
+                <Upload size={16} className="mr-2" />
+                {isSubmitting ? 'Uploading...' : 'Upload Poster'}
+                <input
+                  id="posterUpload"
+                  name="posterUpload"
+                  type="file"
+                  className="sr-only"
+                  onChange={handlePosterChange}
+                  disabled={isSubmitting}
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                />
+              </label>
+              
+              <p className="mt-1 text-xs text-gray-500">
+                JPG, PNG, WebP, or GIF. Max 5MB.
+              </p>
+              
+              {/* Debug section */}
+              <div className="mt-4 border-t pt-4 w-full">
+                <button
+                  type="button"
+                  onClick={testStorageUpload}
+                  disabled={isSubmitting || !posterFile}
+                  className="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded text-gray-700"
+                >
+                  Test Upload Only
+                </button>
+                <p className="text-xs text-gray-500 mt-1">
+                  Use this button to test storage upload without creating an event
+                </p>
               </div>
             </div>
-            
-            {/* Event Description */}
-            <div>
-              <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
-                Event Description <span className="text-red-600">*</span>
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-                rows={5}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter event description..."
-              ></textarea>
-            </div>
-            
-            {/* Featured Event */}
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="featured"
-                name="featured"
-                checked={formData.featured}
-                onChange={handleChange}
-                className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <label htmlFor="featured" className="ml-2 block text-sm text-gray-700">
-                Feature this event on the homepage
-              </label>
-            </div>
-            
-            {/* Event Image */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Event Image
-              </label>
-              
-              {imagePreview ? (
-                <div className="mt-2 relative">
-                  <img 
-                    src={imagePreview} 
-                    alt="Event preview" 
-                    className="h-48 w-full object-cover rounded-md"
-                  />
-                  <button
-                    type="button"
-                    onClick={handleRemoveImage}
-                    className="absolute top-2 right-2 p-1 bg-red-600 text-white rounded-full hover:bg-red-700"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              ) : (
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
-                      <label
-                        htmlFor="image-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500"
-                      >
-                        <span>Upload an image</span>
-                        <input
-                          id="image-upload"
-                          name="image-upload"
-                          type="file"
-                          accept="image/*"
-                          className="sr-only"
-                          onChange={handleImageChange}
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      PNG, JPG, GIF up to 5MB
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-            
-            {/* Form Actions */}
-            <div className="flex justify-end space-x-4 pt-4">
-              <Link
-                to="/admin/events"
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-              >
-                Cancel
-              </Link>
-              
-              <button
-                type="submit"
-                disabled={loading}
-                className={`px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors ${
-                  loading ? 'opacity-70 cursor-not-allowed' : ''
-                }`}
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Saving...
-                  </span>
-                ) : (
-                  isEditMode ? 'Update Event' : 'Create Event'
-                )}
-              </button>
-            </div>
           </div>
-        </form>
-      </div>
+        </div>
+        
+        {/* Submit Buttons */}
+        <div className="flex justify-end space-x-3 pt-4">
+          <button
+            type="button"
+            onClick={() => navigate('/admin/events')}
+            className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          
+          <button
+            type="submit"
+            className={`px-4 py-2 rounded-md shadow-sm text-sm font-medium text-white
+              ${isSubmitting 
+                ? 'bg-blue-400 cursor-not-allowed' 
+                : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+            disabled={isSubmitting}
+          >
+            {isSubmitting 
+              ? 'Saving...' 
+              : isEditMode 
+                ? 'Update Event' 
+                : 'Create Event'
+            }
+          </button>
+        </div>
+      </form>
     </div>
   );
 };

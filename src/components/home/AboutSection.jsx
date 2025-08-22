@@ -1,57 +1,119 @@
+// src/components/home/AboutSection.jsx
 import React from 'react';
-import { BookOpen, Users, Award } from 'lucide-react';
+import { Target, Zap, Users, BookOpen, Award, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import sideImgAbt from "../../assets/images/ExCommMeet24-2-600x400.jpeg"
 
-// Define the component
 const AboutSection = () => {
-  const features = [
+  const activities = [
     {
-      icon: <BookOpen className="w-8 h-8" />,
-      title: 'Research Excellence',
-      description: 'Leading research in signal processing, machine learning, and communication systems with cutting-edge methodologies.'
+      icon: BookOpen,
+      title: 'Research',
+      description: 'Promoting cutting-edge research in signal processing through publications, conferences, and collaborations.'
     },
     {
-      icon: <Users className="w-8 h-8" />,
-      title: 'Professional Network',
-      description: 'Connect with industry leaders, researchers, and peers across Gujarat and international IEEE community.'
+      icon: Users,
+      title: 'Community',
+      description: 'Building a vibrant community of professionals, researchers, and students passionate about signal processing.'
     },
     {
-      icon: <Award className="w-8 h-8" />,
-      title: 'Recognition Programs',
-      description: 'Awards and recognition for outstanding contributions to signal processing research and education.'
+      icon: Zap,
+      title: 'Innovation',
+      description: 'Fostering innovation in signal processing applications across communications, healthcare, and emerging technologies.'
+    },
+    {
+      icon: Award,
+      title: 'Recognition',
+      description: 'Recognizing excellence in signal processing through awards, competitions, and special programs.'
     }
   ];
 
   return (
-    <section id="about" className="py-20 bg-white dark:bg-gray-900">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Heading with Green Accent */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            About IEEE SPS Gujarat
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            The IEEE Signal Processing Society Gujarat Chapter is dedicated to advancing the theory and application of signal processing through collaboration, education, and professional development.
+          <div className="inline-block">
+            <h2 className="text-3xl md:text-4xl font-bold relative inline-block">
+              About IEEE SPS Gujarat
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            </h2>
+          </div>
+          <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
+            Advancing signal processing technology and applications in Gujarat through research, education, and collaboration.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="text-center p-8 rounded-xl border border-gray-100 dark:border-gray-700 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-              <div className="flex justify-center mb-4 text-blue-600 dark:text-blue-400">
-                {feature.icon}
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                {feature.description}
+        {/* Two Column Layout */}
+        <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
+          {/* Left Column: Text Content */}
+          <div>
+            <div className="mb-8 relative pl-5 border-l-4 border-ieee-green">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
+              <p className="text-gray-700">
+                The IEEE Signal Processing Society Gujarat Chapter is dedicated to promoting research, development, and education in signal processing, while fostering professional growth and networking opportunities for our members.
               </p>
             </div>
-          ))}
+            
+            <div className="space-y-4 text-gray-700">
+              <p>
+                Established in 2015, our chapter serves as a hub for signal processing professionals, researchers, and students across Gujarat, providing a platform for knowledge exchange and collaboration in this rapidly evolving field.
+              </p>
+              <p>
+                We organize workshops, conferences, technical talks, and networking events to connect our members with industry leaders, renowned academics, and fellow enthusiasts in signal processing.
+              </p>
+            </div>
+
+            <div className="mt-8">
+              <Link 
+                to="/about" 
+                className="inline-flex items-center px-6 py-3 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-all duration-300 shadow-md"
+              >
+                <Globe className="mr-2 h-5 w-5" />
+                Learn More About Us
+              </Link>
+            </div>
+          </div>
+
+          {/* Right Column: Image or Stat Card */}
+          <div className="relative">
+            {/* Main image with decorative elements */}
+            <div className="rounded-lg overflow-hidden shadow-xl relative z-10">
+              <img 
+                src={sideImgAbt}
+                alt="IEEE SPS Gujarat Chapter Meeting" 
+                className="w-full h-auto"
+              />
+            </div>
+            {/* Decorative Elements */}
+            <div className="absolute top-0 right-0 w-24 h-24 border-t-4 border-r-4 border-ieee-green -mt-4 -mr-4 z-0"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 border-b-4 border-l-4 border-ieee-green -mb-4 -ml-4 z-0"></div>
+          </div>
+        </div>
+
+        {/* What We Do Section */}
+        <div className="mt-20">
+          <h3 className="text-2xl font-bold text-center mb-12">
+            <span className="inline-block pb-2 border-b-4 border-ieee-green">What We Do</span>
+          </h3>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {activities.map((activity, index) => {
+              const Icon = activity.icon;
+              return (
+                <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
+                  <div className="bg-ieee-green/10 p-3 rounded-full inline-block mb-4">
+                    <Icon className="h-8 w-8 text-ieee-green" />
+                  </div>
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">{activity.title}</h4>
+                  <p className="text-gray-600">{activity.description}</p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>
   );
 };
 
-// Make sure this line is present and not commented out
 export default AboutSection;

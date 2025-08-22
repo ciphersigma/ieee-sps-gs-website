@@ -1,6 +1,7 @@
 // services/eventService.js
 import { supabase } from './supabase'
 import { TABLES } from './supabase'
+import { uploadEventPoster, deleteEventPoster } from './storageService'
 
 export const eventService = {
   // ======================================================
@@ -195,7 +196,7 @@ export const eventService = {
   // ======================================================
 
   // Create new event
-  createEvent: async (eventData) => {
+  createEvent: async (eventData, posterFile = null) => {
     try {
       // Validate required fields
       const requiredFields = ['title', 'event_date', 'location'];
@@ -205,6 +206,15 @@ export const eventService = {
         }
       }
 
+      // Upload poster image if provided
+      let posterUrl = eventData.image_url;
+      if (posterFile) {
+        const { url, error: uploadError } = await uploadEventPoster(posterFile);
+        if (uploadError) throw uploadError;
+        posterUrl = url;
+      }
+
+      // Create event with poster URL
       const { data, error } = await supabase
         .from(TABLES.EVENTS)
         .insert([
@@ -221,7 +231,9 @@ export const eventService = {
             registration_deadline: eventData.registration_deadline || null,
             is_featured: eventData.is_featured || false,
             status: eventData.status || 'upcoming',
-            image_url: eventData.image_url || null
+            image_url: posterUrl,
+            poster_url: eventData.poster_url || null, // Support separate poster if needed
+            current_participants: 0
           }
         ])
         .select()
@@ -239,8 +251,32 @@ export const eventService = {
   // ======================================================
 
   // Update event
-  updateEvent: async (eventId, updates) => {
+  updateEvent: async (eventId, updates, posterFile = null) => {
     try {
+      // Get current event data if we're updating the poster
+      let currentEvent = null;
+      if (posterFile) {
+        const { data, error: fetchError } = await this.getEventById(eventId);
+        if (fetchError) throw fetchError;
+        currentEvent = data;
+      }
+
+      // Upload new poster if provided
+      if (posterFile) {
+        // Delete old poster if it exists
+        if (currentEvent?.image_url) {
+          await deleteEventPoster(currentEvent.image_url);
+        }
+
+        // Upload new poster
+        const { url, error: uploadError } = await uploadEventPoster(posterFile);
+        if (uploadError) throw uploadError;
+        
+        // Add poster URL to updates
+        updates.image_url = url;
+      }
+
+      // Update the event
       const { data, error } = await supabase
         .from(TABLES.EVENTS)
         .update({
@@ -313,6 +349,74 @@ export const eventService = {
     }
   },
 
+  // Update event poster
+  updateEventPoster: async (eventId, posterFile) => {
+    try {
+      if (!posterFile) {
+        throw new Error('No poster file provided');
+      }
+
+      // Get current event data
+      const { data: currentEvent, error: fetchError } = await this.getEventById(eventId);
+      if (fetchError) throw fetchError;
+
+      // Delete old poster if it exists
+      if (currentEvent?.image_url) {
+        await deleteEventPoster(currentEvent.image_url);
+      }
+
+      // Upload new poster
+      const { url, error: uploadError } = await uploadEventPoster(posterFile);
+      if (uploadError) throw uploadError;
+
+      // Update event with new poster URL
+      const { data, error } = await supabase
+        .from(TABLES.EVENTS)
+        .update({ 
+          image_url: url,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', eventId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Remove event poster
+  removeEventPoster: async (eventId) => {
+    try {
+      // Get current event data
+      const { data: currentEvent, error: fetchError } = await this.getEventById(eventId);
+      if (fetchError) throw fetchError;
+
+      // Delete poster from storage if it exists
+      if (currentEvent?.image_url) {
+        await deleteEventPoster(currentEvent.image_url);
+      }
+
+      // Update event to remove poster URL
+      const { data, error } = await supabase
+        .from(TABLES.EVENTS)
+        .update({ 
+          image_url: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', eventId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
   // Increment participant count
   incrementParticipantCount: async (eventId) => {
     try {
@@ -346,6 +450,16 @@ export const eventService = {
   // Delete event
   deleteEvent: async (eventId) => {
     try {
+      // Get event details first to access the poster URL
+      const { data: event, error: fetchError } = await this.getEventById(eventId);
+      if (fetchError) throw fetchError;
+
+      // Delete the event poster from storage if it exists
+      if (event?.image_url) {
+        await deleteEventPoster(event.image_url);
+      }
+
+      // Delete the event from the database
       const { data, error } = await supabase
         .from(TABLES.EVENTS)
         .delete()
@@ -570,12 +684,13 @@ export const eventService = {
             hour12: true
           })
         : null,
-      timeUntilEvent: this.getTimeUntilEvent(event.event_date),
-      isRegistrationOpen: this.isRegistrationOpen(event),
-      isFull: this.isEventFull(event),
+      timeUntilEvent: eventService.getTimeUntilEvent(event.event_date),
+      isRegistrationOpen: eventService.isRegistrationOpen(event),
+      isFull: eventService.isEventFull(event),
       spotsRemaining: event.max_participants 
         ? event.max_participants - event.current_participants 
-        : null
+        : null,
+      hasPoster: !!event.image_url
     };
   }
 };
@@ -593,6 +708,8 @@ export const {
   createEvent,
   updateEvent,
   updateEventStatus,
+  updateEventPoster,
+  removeEventPoster,
   toggleFeaturedStatus,
   deleteEvent,
   softDeleteEvent,

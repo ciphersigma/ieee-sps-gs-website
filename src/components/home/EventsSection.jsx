@@ -1,7 +1,7 @@
 // src/components/home/EventsSection.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Calendar, MapPin, ArrowRight } from 'lucide-react';
+import { Calendar, MapPin, Clock, ArrowRight, Tag } from 'lucide-react';
 import { supabase } from '../../services/supabase';
 
 const EventsSection = () => {
@@ -41,13 +41,40 @@ const EventsSection = () => {
     fetchEvents();
   }, []);
 
+  // Get event type badge color
+  const getEventTypeColor = (type) => {
+    switch (type) {
+      case 'Workshop':
+        return 'bg-blue-100 text-ieee-blue';
+      case 'Lecture':
+        return 'bg-purple-100 text-purple-800';
+      case 'Conference':
+        return 'bg-red-100 text-red-800';
+      case 'Competition':
+        return 'bg-green-100 text-green-800';
+      case 'Webinar':
+        return 'bg-teal-100 text-teal-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Format date properly
+  const formatDate = (dateString) => {
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
   // Show placeholder if there are no events
   if (loading) {
     return (
       <section id="events" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Upcoming Events</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
+              Upcoming Events
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Loading events...
             </p>
@@ -77,7 +104,10 @@ const EventsSection = () => {
       <section id="events" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Upcoming Events</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
+              Upcoming Events
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            </h2>
             <p className="text-xl text-red-600 max-w-3xl mx-auto">
               {error}
             </p>
@@ -93,14 +123,17 @@ const EventsSection = () => {
       <section id="events" className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Upcoming Events</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
+              Upcoming Events
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               No upcoming events scheduled at the moment. Check back soon!
             </p>
           </div>
           <div className="text-center">
-            <Link to="/events" className="inline-flex items-center space-x-2 text-blue-600 font-medium hover:text-blue-800">
-              <span>View Past Events</span>
+            <Link to="/events" className="inline-flex items-center px-5 py-2 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors">
+              <span className="mr-2">View Past Events</span>
               <ArrowRight size={18} />
             </Link>
           </div>
@@ -112,50 +145,89 @@ const EventsSection = () => {
   return (
     <section id="events" className="py-20 bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Upcoming Events</h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Join us for workshops, lectures, and competitions to advance your knowledge in signal processing
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
+          <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
+              Upcoming Events
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl">
+              Join us for workshops, lectures, and competitions to advance your knowledge in signal processing
+            </p>
+          </div>
+          <Link 
+            to="/events" 
+            className="mt-6 md:mt-0 inline-flex items-center text-ieee-green hover:text-primary-600 font-medium transition-colors"
+          >
+            <span>View All Events</span>
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {upcomingEvents.map((event) => (
-            <div key={event.id} className="bg-white rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg">
+            <div 
+              key={event.id} 
+              className={`bg-white rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg hover:translate-y-[-4px] ${
+                event.featured ? 'ring-2 ring-ieee-green' : ''
+              }`}
+            >
               {/* Event image (optional) */}
-              {event.image && (
-                <div className="h-48 overflow-hidden">
+              <div className="h-48 relative overflow-hidden">
+                {event.image ? (
                   <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
-                </div>
-              )}
-              
-              {/* If no image, show colored banner */}
-              {!event.image && (
-                <div className="h-24 bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                  <span className="text-white font-medium text-lg">{event.type}</span>
-                </div>
-              )}
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-r from-ieee-blue to-ieee-green flex items-center justify-center">
+                    <span className="text-white font-medium text-lg">{event.type || 'Event'}</span>
+                  </div>
+                )}
+                
+                {/* Event Type Badge */}
+                {event.type && (
+                  <div className="absolute top-4 right-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.type)}`}>
+                      {event.type}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Featured Badge */}
+                {event.featured && (
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 bg-ieee-green text-white rounded-full text-xs font-medium">
+                      Featured
+                    </span>
+                  </div>
+                )}
+              </div>
               
               <div className="p-6">
-                <div className="flex items-center space-x-2 text-sm text-blue-600 mb-2">
-                  <Calendar size={16} />
-                  <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
-                  })}</span>
+                <div className="flex items-center space-x-2 text-sm text-ieee-blue mb-3">
+                  <Calendar size={16} className="flex-shrink-0" />
+                  <span>{formatDate(event.date)}</span>
                 </div>
                 
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{event.title}</h3>
                 
-                <div className="flex items-center space-x-2 text-sm text-gray-600 mb-4">
-                  <MapPin size={16} />
-                  <span>{event.location}</span>
+                <div className="space-y-2 mb-4">
+                  {event.time && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                      <span>{event.time}</span>
+                    </div>
+                  )}
+                  
+                  {event.location && (
+                    <div className="flex items-center text-sm text-gray-600">
+                      <MapPin size={16} className="mr-2 text-gray-400" />
+                      <span>{event.location}</span>
+                    </div>
+                  )}
                 </div>
                 
                 <Link 
                   to={`/events/${event.id}`} 
-                  className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors inline-block text-center"
+                  className="w-full py-2 bg-ieee-blue text-white rounded-md hover:bg-secondary-600 transition-colors inline-block text-center"
                 >
                   Learn More
                 </Link>
@@ -165,8 +237,11 @@ const EventsSection = () => {
         </div>
         
         <div className="text-center mt-12">
-          <Link to="/events" className="inline-flex items-center space-x-2 text-blue-600 font-medium hover:text-blue-800">
-            <span>View All Events</span>
+          <Link 
+            to="/events" 
+            className="inline-flex items-center px-6 py-3 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors"
+          >
+            <span className="mr-2">View All Events</span>
             <ArrowRight size={18} />
           </Link>
         </div>

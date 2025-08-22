@@ -8,36 +8,40 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // IEEE Brand Colors
-        'ieee-blue': '#0077B5',
-        'ieee-green': '#8DC63F',
-        'ieee-dark': '#003366',
+        // IEEE SPS Brand Colors
+        'ieee-blue': '#0077B5',   // IEEE blue
+        'ieee-green': '#8DC63F',  // IEEE SPS green
+        'ieee-black': '#000000',  // Added black
+        'ieee-gray': '#CCCCCC',   // Added light gray
+        'ieee-dark': '#003366',   // Kept this as it might be useful
         
-        // Custom brand palette
+        // Primary palette based on IEEE SPS green
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#f4f9e8',
+          100: '#e9f3d1',
+          200: '#d3e7a3',
+          300: '#bddb75',
+          400: '#a7cf47',
+          500: '#8DC63F', // IEEE green as the main primary color
+          600: '#71a032',
+          700: '#557826',
+          800: '#395019',
+          900: '#1c280d',
         },
+        // Secondary palette based on IEEE blue
         secondary: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
+          50: '#e6f2f9',
+          100: '#cce5f3',
+          200: '#99cbe7',
+          300: '#66b1db',
+          400: '#3397cf',
+          500: '#0077B5', // IEEE blue as the secondary color
+          600: '#006699',
+          700: '#004d73',
+          800: '#00334d',
+          900: '#001a26',
         },
+        // Accent palette kept for additional design options
         accent: {
           50: '#fdf4ff',
           100: '#fae8ff',

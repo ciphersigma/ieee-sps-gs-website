@@ -3,9 +3,8 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Header from './components/layout/Header';
-import Footer from './components/layout/Footer';
 import AdminLayout from './components/layout/AdminLayout';
+import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
 import LoginPage from './pages/admin/LoginPage';
@@ -31,70 +30,137 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Public layout component
-const PublicLayout = ({ children }) => (
-  <>
-    <Header />
-    {children}
-    <Footer />
-  </>
-);
-
 const App = () => {
   return (
     <AuthProvider>
       <ThemeProvider>
         <Router>
           <Routes>
-            {/* Public routes */}
+            {/* Public routes with MainLayout */}
             <Route path="/" element={
-              <PublicLayout>
+              <MainLayout>
                 <HomePage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/events" element={
-              <PublicLayout>
+              <MainLayout>
                 <EventsPage />
-              </PublicLayout>
+              </MainLayout>
+            } />
+
+            {/* Additional routes for committee pages */}
+            <Route path="/committee/executive" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Executive Committee</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/committee/past" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Past Committee</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/committee/former-chair" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Former Chair</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+
+            {/* Routes for additional sections in the navigation bar */}
+            <Route path="/opportunities/*" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Opportunities</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/student/*" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Student Corner</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/awards" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Awards</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/newsletter" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Newsletter</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/gallery" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Photo Gallery</h1>
+                  <p>Content coming soon...</p>
+                </div>
+              </MainLayout>
+            } />
+            <Route path="/join" element={
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4">
+                  <h1 className="text-3xl font-bold mb-8">Join IEEE SPS Gujarat</h1>
+                  <p>Membership information coming soon...</p>
+                </div>
+              </MainLayout>
             } />
 
             {/* Public content routes - Temporarily commented out until components are created 
             <Route path="/news" element={
-              <PublicLayout>
+              <MainLayout>
                 <NewsPage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/news/:id" element={
-              <PublicLayout>
+              <MainLayout>
                 <NewsDetailPage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/publications" element={
-              <PublicLayout>
+              <MainLayout>
                 <PublicationsPage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/publications/:id" element={
-              <PublicLayout>
+              <MainLayout>
                 <PublicationDetailPage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/resources" element={
-              <PublicLayout>
+              <MainLayout>
                 <ResourcesPage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/blog" element={
-              <PublicLayout>
+              <MainLayout>
                 <BlogPage />
-              </PublicLayout>
+              </MainLayout>
             } />
             <Route path="/blog/:id" element={
-              <PublicLayout>
+              <MainLayout>
                 <BlogDetailPage />
-              </PublicLayout>
+              </MainLayout>
             } />
-            
+            */}
             
             {/* Admin login (without admin header) */}
             <Route path="/admin/login" element={<LoginPage />} />
@@ -163,9 +229,12 @@ const App = () => {
             
             {/* 404 route */}
             <Route path="*" element={
-              <PublicLayout>
-                <div className="pt-24 text-center text-xl">Page not found</div>
-              </PublicLayout>
+              <MainLayout>
+                <div className="container mx-auto py-12 px-4 text-center">
+                  <h1 className="text-4xl font-bold mb-4">404</h1>
+                  <p className="text-xl">Page not found</p>
+                </div>
+              </MainLayout>
             } />
           </Routes>
         </Router>

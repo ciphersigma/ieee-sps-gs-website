@@ -1,116 +1,215 @@
 // src/pages/EventsPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { 
+  Calendar, MapPin, Clock, Filter, Search, 
+  Tag, ChevronDown, X, ArrowRight 
+} from 'lucide-react';
 import { supabase } from '../services/supabase';
-import { Calendar, MapPin, Clock, Search, Filter, X, ChevronDown, AlertCircle } from 'lucide-react';
 
 const EventsPage = () => {
-  const [allEvents, setAllEvents] = useState([]);
+  const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    type: 'all',
-    status: 'upcoming'
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    types: [],
+    upcoming: true,
+    past: false
   });
-  const [showFilters, setShowFilters] = useState(false);
-  
-  // Fetch events from Supabase
+
+  // Fetch events on component mount
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .order('date', { ascending: false });
-        
-        if (error) throw error;
-        
-        setAllEvents(data || []);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-        setError('Failed to fetch events. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    
     fetchEvents();
   }, []);
-  
-  // Apply filters and search
+
+  // Filter events when search term or filters change
   useEffect(() => {
-    if (!allEvents.length) {
+    filterEvents();
+  }, [events, searchTerm, activeFilters]);
+
+  // Fetch events from Supabase
+  const fetchEvents = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('date', { ascending: activeFilters.upcoming });
+      
+      if (error) throw error;
+      
+      setEvents(data || []);
+    } catch (err) {
+      console.error('Error fetching events:', err);
+      setError('Failed to load events. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Filter events based on search term and filters
+  const filterEvents = () => {
+    if (!events.length) {
       setFilteredEvents([]);
       return;
     }
-    
-    let result = [...allEvents];
-    
-    // Filter by type
-    if (filters.type !== 'all') {
-      result = result.filter(event => event.type === filters.type);
-    }
-    
-    // Filter by status
-    if (filters.status !== 'all') {
-      const today = new Date();
-      
-      if (filters.status === 'upcoming') {
-        result = result.filter(event => {
-          const eventDate = new Date(event.date);
-          return eventDate >= today;
-        });
-      } else if (filters.status === 'past') {
-        result = result.filter(event => {
-          const eventDate = new Date(event.date);
-          return eventDate < today;
-        });
-      }
-    }
+
+    let filtered = [...events];
     
     // Filter by search term
-    if (searchTerm) {
+    if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      result = result.filter(event => 
-        event.title?.toLowerCase().includes(term) || 
-        event.description?.toLowerCase().includes(term) ||
-        event.location?.toLowerCase().includes(term)
+      filtered = filtered.filter(event => 
+        event.title.toLowerCase().includes(term) || 
+        event.location.toLowerCase().includes(term) ||
+        (event.description && event.description.toLowerCase().includes(term))
       );
     }
     
-    setFilteredEvents(result);
-  }, [allEvents, filters, searchTerm]);
-  
-  // Get unique event types for filter dropdown
-  const eventTypes = ['all', ...new Set(allEvents.map(event => event.type).filter(Boolean))];
-  
+    // Filter by event type
+    if (activeFilters.types.length > 0) {
+      filtered = filtered.filter(event => 
+        activeFilters.types.includes(event.type)
+      );
+    }
+    
+    // Filter by upcoming/past
+    const today = new Date().toISOString().split('T')[0];
+    if (activeFilters.upcoming && !activeFilters.past) {
+      filtered = filtered.filter(event => event.date >= today);
+    } else if (!activeFilters.upcoming && activeFilters.past) {
+      filtered = filtered.filter(event => event.date < today);
+    }
+    
+    setFilteredEvents(filtered);
+  };
+
+  // Toggle a specific filter
+  const toggleFilter = (filterType, value) => {
+    if (filterType === 'types') {
+      setActiveFilters(prev => {
+        const updatedTypes = prev.types.includes(value)
+          ? prev.types.filter(type => type !== value)
+          : [...prev.types, value];
+        
+        return {
+          ...prev,
+          types: updatedTypes
+        };
+      });
+    } else {
+      setActiveFilters(prev => ({
+        ...prev,
+        [value]: !prev[value]
+      }));
+    }
+  };
+
   // Clear all filters
   const clearFilters = () => {
-    setFilters({
-      type: 'all',
-      status: 'upcoming'
+    setActiveFilters({
+      types: [],
+      upcoming: true,
+      past: false
     });
     setSearchTerm('');
   };
 
+  // Get unique event types for filter options
+  const eventTypes = [...new Set(events.map(event => event.type))].filter(Boolean);
+
+  // Format date
+  const formatDate = (dateString) => {
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Get event type badge color
+  const getEventTypeColor = (type) => {
+    switch (type) {
+      case 'Workshop':
+        return 'bg-blue-100 text-ieee-blue';
+      case 'Lecture':
+        return 'bg-purple-100 text-purple-800';
+      case 'Conference':
+        return 'bg-red-100 text-red-800';
+      case 'Competition':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Placeholder events for fallback
+  const placeholderEvents = [
+    {
+      id: 1,
+      title: "International Workshop on Digital Signal Processing",
+      date: "2025-09-15",
+      time: "10:00 AM - 4:00 PM",
+      location: "IIT Gandhinagar",
+      type: "Workshop",
+      featured: true
+    },
+    {
+      id: 2,
+      title: "IEEE SPS Distinguished Lecture Series",
+      date: "2025-09-22",
+      time: "2:00 PM - 4:00 PM",
+      location: "NIT Surat",
+      type: "Lecture"
+    },
+    {
+      id: 3,
+      title: "Student Paper Competition 2025",
+      date: "2025-10-05",
+      time: "9:00 AM - 6:00 PM",
+      location: "DA-IICT Gandhinagar",
+      type: "Competition"
+    }
+  ];
+
+  // Determine which events to display
+  const displayEvents = filteredEvents.length > 0 ? filteredEvents : 
+                        (error ? placeholderEvents : []);
+
   return (
-    <div className="pt-16 min-h-screen bg-gray-50">
-      {/* Page Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl font-bold mb-4">Events & Activities</h1>
-          <p className="text-xl opacity-90 max-w-3xl">
-            Discover workshops, lectures, conferences, and competitions organized by the IEEE Signal Processing Society Gujarat Chapter.
+    <div className="min-h-screen bg-gray-50">
+      {/* Hero Section */}
+      <section className="bg-gradient-to-r from-ieee-green to-ieee-blue text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
+            backgroundSize: '25px 25px'
+          }}></div>
+          
+          {/* Signal waves */}
+          <svg className="absolute bottom-0 left-0 right-0 w-full" viewBox="0 0 1200 200" preserveAspectRatio="none">
+            <path 
+              d="M0,100 C100,60 200,140 300,100 C400,60 500,140 600,100 C700,60 800,140 900,100 C1000,60 1100,140 1200,100" 
+              fill="none" 
+              stroke="rgba(255, 255, 255, 0.2)" 
+              strokeWidth="2"
+            />
+          </svg>
+        </div>
+        
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">Events & Activities</h1>
+          <p className="text-xl max-w-3xl opacity-90">
+            Discover workshops, lectures, conferences, and competitions organized by the 
+            IEEE Signal Processing Society Gujarat Chapter.
           </p>
         </div>
-      </div>
+      </section>
       
-      {/* Search and Filters */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
+      {/* Filters and Search Section */}
+      <section className="bg-white shadow-md py-4 sticky top-20 z-30">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             {/* Search Bar */}
             <div className="relative flex-grow max-w-md">
@@ -119,10 +218,10 @@ const EventsPage = () => {
               </div>
               <input
                 type="text"
+                placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search events..."
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
               />
               {searchTerm && (
                 <button 
@@ -134,231 +233,271 @@ const EventsPage = () => {
               )}
             </div>
             
-            {/* Filters */}
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              >
-                <Filter className="h-5 w-5" />
-                <span>Filters</span>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {(filters.type !== 'all' || filters.status !== 'upcoming' || searchTerm) && (
-                <button 
-                  onClick={clearFilters}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            {/* Filter Button & Active Filters */}
+            <div className="flex flex-wrap items-center gap-2">
+              {/* Active filter pills */}
+              {activeFilters.types.map(type => (
+                <span 
+                  key={type}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-ieee-green/10 text-ieee-green"
                 >
-                  Clear All
-                </button>
+                  {type}
+                  <button 
+                    onClick={() => toggleFilter('types', type)}
+                    className="ml-1 text-ieee-green focus:outline-none"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              
+              {activeFilters.upcoming && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-ieee-blue/10 text-ieee-blue">
+                  Upcoming
+                  <button 
+                    onClick={() => toggleFilter('time', 'upcoming')}
+                    className="ml-1 text-ieee-blue focus:outline-none"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
               )}
+              
+              {activeFilters.past && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
+                  Past
+                  <button 
+                    onClick={() => toggleFilter('time', 'past')}
+                    className="ml-1 text-gray-700 focus:outline-none"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              
+              {/* Filter dropdown button */}
+              <div className="relative">
+                <button
+                  onClick={() => setFilterOpen(!filterOpen)}
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50"
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filters
+                  <ChevronDown className={`ml-2 h-4 w-4 transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {/* Filter dropdown */}
+                {filterOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg py-2 z-40 border border-gray-200">
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <h3 className="font-medium text-gray-900">Event Type</h3>
+                      <div className="mt-2 space-y-2">
+                        {eventTypes.map(type => (
+                          <label key={type} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              checked={activeFilters.types.includes(type)}
+                              onChange={() => toggleFilter('types', type)}
+                              className="h-4 w-4 text-ieee-green focus:ring-ieee-green rounded"
+                            />
+                            <span className="ml-2 text-gray-700">{type}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 py-2 border-b border-gray-200">
+                      <h3 className="font-medium text-gray-900">Time</h3>
+                      <div className="mt-2 space-y-2">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={activeFilters.upcoming}
+                            onChange={() => toggleFilter('time', 'upcoming')}
+                            className="h-4 w-4 text-ieee-green focus:ring-ieee-green rounded"
+                          />
+                          <span className="ml-2 text-gray-700">Upcoming</span>
+                        </label>
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={activeFilters.past}
+                            onChange={() => toggleFilter('time', 'past')}
+                            className="h-4 w-4 text-ieee-green focus:ring-ieee-green rounded"
+                          />
+                          <span className="ml-2 text-gray-700">Past</span>
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div className="px-4 py-2 flex justify-between">
+                      <button
+                        onClick={clearFilters}
+                        className="text-sm text-gray-600 hover:text-gray-900"
+                      >
+                        Clear all filters
+                      </button>
+                      <button
+                        onClick={() => setFilterOpen(false)}
+                        className="text-sm text-ieee-blue hover:text-ieee-green font-medium"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          
-          {/* Expanded Filters */}
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Event Type Filter */}
-              <div>
-                <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Type
-                </label>
-                <select
-                  id="type-filter"
-                  value={filters.type}
-                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  {eventTypes.map(type => (
-                    <option key={type} value={type}>
-                      {type === 'all' ? 'All Types' : type}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              {/* Event Status Filter */}
-              <div>
-                <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Status
-                </label>
-                <select
-                  id="status-filter"
-                  value={filters.status}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="all">All Events</option>
-                  <option value="upcoming">Upcoming Events</option>
-                  <option value="past">Past Events</option>
-                </select>
-              </div>
+        </div>
+      </section>
+      
+      {/* Events List Section */}
+      <section className="py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ieee-green"></div>
             </div>
           )}
-        </div>
-        
-        {/* Results Count */}
-        <div className="mb-6 flex justify-between items-center">
-          <p className="text-gray-600">
-            {filteredEvents.length === 0 
-              ? 'No events found' 
-              : `Showing ${filteredEvents.length} ${filteredEvents.length === 1 ? 'event' : 'events'}`}
-          </p>
-        </div>
-        
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-              <p className="text-red-700">{error}</p>
+          
+          {/* Error State */}
+          {error && !loading && displayEvents.length === 0 && (
+            <div className="text-center py-20">
+              <div className="bg-red-50 inline-block mx-auto p-4 rounded-lg text-red-700 mb-4">
+                <X className="h-10 w-10 mx-auto mb-2" />
+                <p>{error}</p>
+              </div>
+              <button
+                onClick={() => fetchEvents()}
+                className="mt-4 px-4 py-2 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors"
+              >
+                Try Again
+              </button>
             </div>
-          </div>
-        )}
-        
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading events...</p>
-          </div>
-        )}
-        
-        {/* Events Grid */}
-        {!loading && filteredEvents.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 text-gray-400 mb-4">
-              <Calendar className="h-8 w-8" />
+          )}
+          
+          {/* No Results State */}
+          {!loading && !error && filteredEvents.length === 0 && events.length > 0 && (
+            <div className="text-center py-20">
+              <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-medium text-gray-600 mb-2">No events found</h3>
+              <p className="text-gray-500 mb-6">Try adjusting your search or filters</p>
+              <button
+                onClick={clearFilters}
+                className="px-4 py-2 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors"
+              >
+                Clear Filters
+              </button>
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-            <p className="text-gray-500">Try adjusting your search or filters to find what you're looking for.</p>
-            <button 
-              onClick={clearFilters}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              Clear All Filters
-            </button>
-          </div>
-        ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((event) => {
-              // Check if event is past or upcoming
-              const today = new Date();
-              const eventDate = new Date(event.date);
-              const isPast = eventDate < today;
+          )}
+          
+          {/* Empty State */}
+          {!loading && !error && events.length === 0 && (
+            <div className="text-center py-20">
+              <Calendar className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-medium text-gray-600 mb-2">No events yet</h3>
+              <p className="text-gray-500">Check back soon for upcoming events</p>
+            </div>
+          )}
+          
+          {/* Events Grid */}
+          {!loading && displayEvents.length > 0 && (
+            <>
+              <h2 className="text-2xl font-bold mb-6 text-gray-900">
+                {activeFilters.upcoming && !activeFilters.past ? 'Upcoming Events' : 
+                 !activeFilters.upcoming && activeFilters.past ? 'Past Events' : 'All Events'}
+                <span className="ml-2 text-sm font-normal text-gray-500">
+                  ({displayEvents.length} {displayEvents.length === 1 ? 'event' : 'events'})
+                </span>
+              </h2>
               
-              return (
-                <div 
-                  key={event.id} 
-                  className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all ${
-                    event.featured ? 'border-2 border-blue-500' : ''
-                  }`}
-                >
-                  {/* Event Image */}
-                  <div className="h-48 overflow-hidden relative">
-                    {event.image ? (
-                      <img 
-                        src={event.image} 
-                        alt={event.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-r from-blue-500 to-indigo-600 flex items-center justify-center">
-                        <span className="text-white text-lg font-medium">{event.type || 'Event'}</span>
-                      </div>
-                    )}
-                    
-                    {/* Event Type Badge */}
-                    {event.type && (
-                      <div className="absolute top-4 right-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          event.type === 'Workshop' ? 'bg-blue-100 text-blue-800' :
-                          event.type === 'Lecture' ? 'bg-purple-100 text-purple-800' :
-                          event.type === 'Conference' ? 'bg-red-100 text-red-800' :
-                          event.type === 'Competition' ? 'bg-green-100 text-green-800' :
-                          event.type === 'Webinar' ? 'bg-teal-100 text-teal-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {event.type}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Featured Badge */}
-                    {event.featured && (
-                      <div className="absolute top-4 left-4">
-                        <span className="px-3 py-1 bg-yellow-400 text-yellow-900 rounded-full text-xs font-medium">
-                          Featured
-                        </span>
-                      </div>
-                    )}
-                    
-                    {/* Past Event Overlay */}
-                    {isPast && (
-                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <span className="px-4 py-1 bg-gray-800 text-white rounded-md text-sm font-medium">
-                          Past Event
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Event Details */}
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">{event.title}</h3>
-                    
-                    <div className="space-y-2 mb-4">
-                      <div className="flex items-center text-sm text-gray-600">
-                        <Calendar className="h-4 w-4 mr-2 text-blue-600" />
-                        <span>{new Date(event.date).toLocaleDateString('en-US', { 
-                          weekday: 'long',
-                          day: 'numeric', 
-                          month: 'long', 
-                          year: 'numeric' 
-                        })}</span>
-                      </div>
-                      
-                      {event.time && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Clock className="h-4 w-4 mr-2 text-blue-600" />
-                          <span>{event.time}</span>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {displayEvents.map((event) => (
+                  <div 
+                    key={event.id} 
+                    className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 ${
+                      event.featured ? 'ring-2 ring-ieee-green' : ''
+                    }`}
+                  >
+                    {/* Event Image or Color Banner */}
+                    <div className="h-48 relative overflow-hidden">
+                      {event.image ? (
+                        <img 
+                          src={event.image} 
+                          alt={event.title} 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-r from-ieee-blue to-ieee-green flex items-center justify-center">
+                          <span className="text-white text-lg font-medium">{event.type || 'Event'}</span>
                         </div>
                       )}
                       
-                      {event.location && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <MapPin className="h-4 w-4 mr-2 text-blue-600" />
-                          <span>{event.location}</span>
+                      {/* Featured and Type Tags */}
+                      <div className="absolute top-4 right-4">
+                        {event.type && (
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.type)}`}>
+                            {event.type}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {event.featured && (
+                        <div className="absolute top-4 left-4">
+                          <span className="px-3 py-1 bg-ieee-green text-white rounded-full text-xs font-medium">
+                            Featured
+                          </span>
                         </div>
                       )}
                     </div>
                     
-                    {event.description && (
-                      <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
-                    )}
-                    
-                    <div className="flex justify-between items-center">
+                    <div className="p-6">
+                      {/* Date */}
+                      <div className="flex items-center space-x-2 text-sm text-ieee-blue mb-3">
+                        <Calendar className="h-4 w-4 flex-shrink-0" />
+                        <span>{formatDate(event.date)}</span>
+                      </div>
+                      
+                      {/* Title */}
+                      <h3 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
+                        {event.title}
+                      </h3>
+                      
+                      {/* Details */}
+                      <div className="space-y-2 mb-4">
+                        {event.time && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Clock className="h-4 w-4 mr-2 text-gray-400" />
+                            <span>{event.time}</span>
+                          </div>
+                        )}
+                        
+                        {event.location && (
+                          <div className="flex items-center text-sm text-gray-600">
+                            <MapPin className="h-4 w-4 mr-2 text-gray-400" />
+                            <span>{event.location}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Action Button */}
                       <Link 
                         to={`/events/${event.id}`} 
-                        className="text-blue-600 hover:text-blue-800 font-medium"
+                        className="inline-flex items-center justify-center w-full py-2 bg-ieee-blue text-white rounded-md hover:bg-secondary-600 transition-colors"
                       >
-                        View Details
+                        <span>View Details</span>
+                        <ArrowRight className="ml-2 h-4 w-4" />
                       </Link>
-                      
-                      {!isPast && (
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm">
-                          Register
-                        </button>
-                      )}
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </section>
     </div>
   );
 };

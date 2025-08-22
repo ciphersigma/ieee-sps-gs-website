@@ -1,25 +1,29 @@
 // src/components/common/Logo.jsx
 import React from 'react';
-// Import the logo image (update the path if needed)
-import spsLogo from '../../assets/images/ieee-sps-logo.png'; 
+import { Link } from 'react-router-dom';
 
-const Logo = ({ size = 'md' }) => {
-  // Increased size classes for larger logo
+// You'll need to add your logo image to the public/assets directory
+// For example: public/assets/images/ieee-sps-logo.png
+
+const Logo = ({ variant = 'default', size = 'md' }) => {
+  // Size classes
   const sizeClasses = {
-    sm: 'h-12',
-    md: 'h-16',
-    lg: 'h-20'
+    sm: 'h-8',
+    md: 'h-10',
+    lg: 'h-14',
+    xl: 'h-20'
   };
 
+  const currentSize = sizeClasses[size] || sizeClasses.md;
+
   return (
-    <div className="flex items-center">
-      {/* Enlarged logo image without any text */}
+    <Link to="/" className="flex items-center">
       <img 
-        src={spsLogo} 
-        alt="IEEE Signal Processing Society Gujarat Section" 
-        className={`${sizeClasses[size]} w-auto`} 
+        src="src/assets/images/ieee-sps-logo.png" 
+        alt="IEEE Signal Processing Society Gujarat Chapter" 
+        className={`${currentSize} w-auto`}
       />
-    </div>
+    </Link>
   );
 };
 
