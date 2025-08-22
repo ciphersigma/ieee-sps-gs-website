@@ -7,6 +7,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
+import CommitteePage from './pages/CommitteePage'; // Import the new CommitteePage
 import LoginPage from './pages/admin/LoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import EventsManagement from './pages/admin/EventsManagement';
@@ -48,13 +49,15 @@ const App = () => {
               </MainLayout>
             } />
 
-            {/* Additional routes for committee pages */}
+            {/* Committee routes */}
+            <Route path="/committee" element={
+              <MainLayout>
+                <CommitteePage />
+              </MainLayout>
+            } />
             <Route path="/committee/executive" element={
               <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Executive Committee</h1>
-                  <p>Content coming soon...</p>
-                </div>
+                <CommitteePage />
               </MainLayout>
             } />
             <Route path="/committee/past" element={

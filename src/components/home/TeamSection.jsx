@@ -17,70 +17,88 @@ const TeamSection = () => {
     try {
       setLoading(true);
       
-      // Fetch executive committee members from Supabase
-      const { data, error } = await supabase
-        .from('executive_committee')
-        .select('*')
-        .order('order', { ascending: true }) // Assuming you have an 'order' field for sorting
-        .limit(8); // Limit to 8 members for the homepage
-      
-      if (error) throw error;
-      
-      setCommittee(data || []);
+      // Try to fetch from Supabase
+      try {
+        const { data, error } = await supabase
+          .from('executive_committee')
+          .select('*')
+          .order('order', { ascending: true })
+          .limit(5); // Only get top 5 members
+        
+        if (error) throw error;
+        
+        if (Array.isArray(data) && data.length > 0) {
+          setCommittee(data);
+        } else {
+          setCommittee(fallbackCommittee);
+        }
+      } catch (supabaseErr) {
+        console.error('Supabase error:', supabaseErr);
+        setCommittee(fallbackCommittee);
+      }
     } catch (err) {
       console.error('Error fetching committee members:', err);
-      setError('Failed to load executive committee data.');
+      setError('Failed to load committee data.');
+      setCommittee(fallbackCommittee);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fallback data if Supabase fetch fails or table doesn't exist yet
+  // Fallback data - core executive team based on your image
   const fallbackCommittee = [
     {
       id: 1,
       name: "Dr. Mita Paunwala",
       position: "Chair",
-      affiliation: "SCET",
-      image: "/assets/images/team/chair.jpg",
-      email: "mitapaunwala@ieee.org",
-      linkedin: "https://www.linkedin.com/in/prashant-chettiyar/",
-      bio: "Associate Professor with expertise in signal processing and communications"
+      affiliation: "Associate Professor, Dean R & D, GCRCET, Surat",
+      image: "/assets/images/team/mita-paunwala.jpg",
     },
     {
       id: 2,
-      name: "Dr. Aditya Shah",
-      position: "Vice Chair",
-      affiliation: "DAIICT",
-      image: "/assets/images/team/vice-chair.jpg",
-      email: "aditya.shah@ieee.org",
-      linkedin: "https://www.linkedin.com/in/adityashah/",
-      bio: "Research scientist specializing in image processing and computer vision"
+      name: "Dr. Arpan Desai",
+      position: "Vice-Chair",
+      affiliation: "Assistant Professor, Charotar University of Science and Technology",
+      image: "/assets/images/team/arpan-desai.jpg",
     },
     {
       id: 3,
-      name: "Prof. Smita Patel",
+      name: "Mr. Ankit Dave",
       position: "Secretary",
-      affiliation: "NIRMA University",
-      image: "/assets/images/team/secretary.jpg",
-      email: "smita.patel@ieee.org",
-      linkedin: "https://www.linkedin.com/in/smitapatel/",
-      bio: "Assistant Professor with research focus on biomedical signal processing"
+      affiliation: "Program Manager, Medallia India Pvt. Ltd.",
+      image: "/assets/images/team/ankit-dave.jpg",
     },
     {
       id: 4,
-      name: "Dr. Rajesh Kumar",
+      name: "Dr. Ketki Pathak",
       position: "Treasurer",
-      affiliation: "IIT Gandhinagar",
-      image: "/assets/images/team/treasurer.jpg",
-      email: "rajesh.kumar@ieee.org",
-      linkedin: "https://www.linkedin.com/in/rajeshkumar/",
-      bio: "Associate Professor specializing in audio signal processing"
+      affiliation: "Assistant Professor, SCET, Surat",
+      image: "/assets/images/team/ketki-pathak.jpg",
+    },
+    {
+      id: 5,
+      name: "Dr. Chirag Paunwala",
+      position: "Advisor, Immediate Past Chair",
+      affiliation: "Professor, HOD EC Dept, SCET, Surat",
+      image: "/assets/images/team/chirag-paunwala.jpg",
     }
   ];
 
-  // Determine which data to display
-  const displayCommittee = committee.length > 0 ? committee : (error ? fallbackCommittee : []);
+  // Use data from API or fallback
+  const displayCommittee = committee.length > 0 ? committee : fallbackCommittee;
+
+  // Handle image error
+  const handleImageError = (e, name) => {
+    e.target.onerror = null;
+    // Replace with placeholder
+    e.target.style.display = 'none';
+    const parent = e.target.parentNode;
+    parent.classList.add('bg-gray-200', 'flex', 'items-center', 'justify-center');
+    const initials = document.createElement('span');
+    initials.className = 'text-4xl text-gray-400 font-bold';
+    initials.textContent = name.split(' ').map(n => n[0]).join('');
+    parent.appendChild(initials);
+  };
 
   return (
     <section className="py-20 bg-white">
@@ -103,9 +121,9 @@ const TeamSection = () => {
           </div>
         )}
         
-        {/* Error State (only shown if no fallback data) */}
-        {error && displayCommittee.length === 0 && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md max-w-2xl mx-auto">
+        {/* Error State (shown alongside fallback data) */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md max-w-2xl mx-auto mb-8">
             <div className="flex items-center">
               <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
               <p className="text-red-700">{error}</p>
@@ -113,25 +131,26 @@ const TeamSection = () => {
           </div>
         )}
         
-        {/* Committee Members Grid */}
-        {displayCommittee.length > 0 && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        {/* Committee Members Grid - Always display something */}
+        {!loading && (
+          <div className="grid md:grid-cols-3 lg:grid-cols-5 gap-6">
             {displayCommittee.map((member) => (
               <div 
                 key={member.id} 
                 className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
               >
                 {/* Member Photo */}
-                <div className="h-60 overflow-hidden">
+                <div className="h-48 overflow-hidden bg-slate-200">
                   {member.image ? (
                     <img 
                       src={member.image} 
                       alt={member.name} 
                       className="w-full h-full object-cover"
+                      onError={(e) => handleImageError(e, member.name)}
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-4xl text-gray-400 font-bold">
+                    <div className="w-full h-full bg-slate-200 flex items-center justify-center">
+                      <span className="text-3xl text-slate-400 font-bold">
                         {member.name.split(' ').map(n => n[0]).join('')}
                       </span>
                     </div>
@@ -139,27 +158,23 @@ const TeamSection = () => {
                 </div>
                 
                 {/* Member Info */}
-                <div className="p-6 border-t-4 border-ieee-green">
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-ieee-blue font-medium mb-1">{member.position}</p>
+                <div className="p-4 border-t-4 border-ieee-green">
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
+                  <p className="text-ieee-blue font-medium text-sm mb-2">{member.position}</p>
                   
                   {member.affiliation && (
-                    <p className="text-sm text-gray-600 mb-3">{member.affiliation}</p>
-                  )}
-                  
-                  {member.bio && (
-                    <p className="text-sm text-gray-700 mb-4 line-clamp-2">{member.bio}</p>
+                    <p className="text-xs text-gray-600 mb-3 line-clamp-2">{member.affiliation}</p>
                   )}
                   
                   {/* Social Links */}
-                  <div className="flex space-x-3 mt-auto">
+                  <div className="flex space-x-3 mt-2">
                     {member.email && (
                       <a 
                         href={`mailto:${member.email}`} 
                         className="text-gray-500 hover:text-ieee-green transition-colors"
                         aria-label={`Email ${member.name}`}
                       >
-                        <Mail className="h-5 w-5" />
+                        <Mail className="h-4 w-4" />
                       </a>
                     )}
                     
@@ -171,19 +186,7 @@ const TeamSection = () => {
                         className="text-gray-500 hover:text-ieee-green transition-colors"
                         aria-label={`LinkedIn profile of ${member.name}`}
                       >
-                        <Linkedin className="h-5 w-5" />
-                      </a>
-                    )}
-                    
-                    {member.website && (
-                      <a 
-                        href={member.website} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-ieee-green transition-colors"
-                        aria-label={`Website of ${member.name}`}
-                      >
-                        <ExternalLink className="h-5 w-5" />
+                        <Linkedin className="h-4 w-4" />
                       </a>
                     )}
                   </div>
@@ -193,10 +196,10 @@ const TeamSection = () => {
           </div>
         )}
         
-        {/* View Full Team Link */}
+        {/* View Full Committee Link */}
         <div className="text-center mt-12">
           <Link 
-            to="/team" 
+            to="/committee" 
             className="inline-flex items-center px-6 py-3 border-2 border-ieee-green text-ieee-green hover:bg-ieee-green hover:text-white rounded-md transition-colors font-medium"
           >
             View Full Committee
