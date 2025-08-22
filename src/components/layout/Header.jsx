@@ -189,7 +189,7 @@ const Header = () => {
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center">
             <img 
-              src="/assets/images/ieee-sps-logo.png" 
+              src="src/assets/images/ieee-sps-logo.png" 
               alt="IEEE SPS Gujarat Chapter" 
               className="h-10 w-auto mr-2"
             />
