@@ -7,6 +7,7 @@ import {
   Calendar, Briefcase, GraduationCap, Award, 
   FileText, Camera, Home, BookOpen, Mail, Users
 } from 'lucide-react';
+import ImgLogo from "./../../assets/images/ieee-sps-logo.png"
 
 const Header = () => {
   const [scrolled, setScrolled] = useState(false);
@@ -335,7 +336,7 @@ const Header = () => {
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center">
             <img 
-              src="src/assets/images/ieee-sps-logo.png" 
+              src={ImgLogo}
               alt="IEEE SPS Gujarat Chapter" 
               className="h-12 w-auto"
             />
