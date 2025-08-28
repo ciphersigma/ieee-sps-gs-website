@@ -7,7 +7,8 @@ import AdminLayout from './components/layout/AdminLayout';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
-import CommitteePage from './pages/CommitteePage'; // Import the new CommitteePage
+import AboutPage from './pages/AboutPage'; // Import the new AboutPage
+import CommitteePage from './pages/CommitteePage';
 import LoginPage from './pages/admin/LoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import EventsManagement from './pages/admin/EventsManagement';
@@ -15,6 +16,7 @@ import EventForm from './pages/admin/EventForm';
 import SettingsPage from './pages/admin/SettingsPage';
 import ContentManagement from './pages/admin/ContentManagement';
 import ContentForm from './pages/admin/ContentForm';
+import ContactPage from './pages/ContactPage';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -46,6 +48,30 @@ const App = () => {
             <Route path="/events" element={
               <MainLayout>
                 <EventsPage />
+              </MainLayout>
+            } />
+            
+            {/* About Us route */}
+            <Route path="/about" element={
+              <MainLayout>
+                <AboutPage />
+              </MainLayout>
+            } />
+            
+            {/* About Us sub-routes */}
+            <Route path="/about/mission" element={
+              <MainLayout>
+                <AboutPage />
+              </MainLayout>
+            } />
+            <Route path="/about/history" element={
+              <MainLayout>
+                <AboutPage />
+              </MainLayout>
+            } />
+            <Route path="/about/focus-areas" element={
+              <MainLayout>
+                <AboutPage />
               </MainLayout>
             } />
 
@@ -126,7 +152,12 @@ const App = () => {
                 </div>
               </MainLayout>
             } />
-
+            {/* Contact Page route */}
+<Route path="/contact" element={
+  <MainLayout>
+    <ContactPage />
+  </MainLayout>
+} />
             {/* Public content routes - Temporarily commented out until components are created 
             <Route path="/news" element={
               <MainLayout>

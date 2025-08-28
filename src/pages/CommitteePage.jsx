@@ -263,24 +263,43 @@ const CommitteePage = () => {
   );
 
   return (
-    <div>
-      {/* Hero Section with green gradient background matching your design */}
-      <section className="bg-gradient-to-r from-ieee-green to-green-600 text-white py-16 px-4 mt-12">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-bold mb-4">
-            EXECUTIVE COMMITTEE - 2025
-          </h1>
-          <p className="text-xl opacity-90 max-w-3xl">
-            Meet the dedicated team of professionals leading the IEEE Signal Processing Society Gujarat Chapter
-          </p>
+    <div className="min-h-screen bg-white">
+      {/* Hero Section - Exactly matching your second image with grid pattern and signal wave */}
+      <section className="bg-gradient-to-r from-ieee-green to-blue-600 text-white py-16 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute inset-0" style={{
+            backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
+            backgroundSize: '25px 25px'
+          }}></div>
+          
+          {/* Signal waves */}
+          <svg className="absolute bottom-0 left-0 right-0 w-full" viewBox="0 0 1200 200" preserveAspectRatio="none">
+            <path 
+              d="M0,100 C100,60 200,140 300,100 C400,60 500,140 600,100 C700,60 800,140 900,100 C1000,60 1100,140 1200,100" 
+              fill="none" 
+              stroke="rgba(255, 255, 255, 0.2)" 
+              strokeWidth="2"
+            />
+          </svg>
+        </div>
+        
+        <div className="container mx-auto px-6 lg:px-8 relative z-10">
+          <div className="max-w-4xl">
+            <h1 className="text-5xl font-bold mb-4">
+              Executive Committee
+            </h1>
+            <p className="text-xl">
+              Meet the dedicated professionals leading the IEEE Signal Processing Society Gujarat Chapter.
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Content Section */}
       <section className="py-8 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Back Button */}
-          <div className="mb-8">
+        <div className="container mx-auto px-6 lg:px-8">
+          {/* Back Button - Styled exactly as in your second image */}
+          <div className="mb-10">
             <Link 
               to="/" 
               className="inline-flex items-center text-ieee-green hover:text-green-700 transition-colors"
