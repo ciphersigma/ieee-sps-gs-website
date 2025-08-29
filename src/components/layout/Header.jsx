@@ -151,7 +151,7 @@ const Header = () => {
         { name: 'Executive Committee', href: '/committee/executive' },
         { name: 'Past Committee', href: '/committee/past' },
         { name: 'Former Chair', href: '/committee/former-chair' },
-        { name: 'Student Chapter Representatives', href: '/committee/SCR-Team' }
+        { name: 'Section Chapter Representatives', href: '/committee/SCR-Team' }
       ]
     },
     {

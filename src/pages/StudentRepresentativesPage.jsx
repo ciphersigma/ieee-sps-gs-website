@@ -76,7 +76,7 @@ const StudentRepresentativesPage = () => {
       id: 8,
       name: "Chrisha Dabhi",
       position: "Student Representative",
-      affiliation: "DDIT Nadiad",
+      affiliation: "Kadi Sarva Vishwavidyalya",
       email: "chrisha.dabhi@ieeesps.org",
       image: `${supabaseStorageUrl}Chrisha%20Dabhi.jpg`,
       linkedin: "https://linkedin.com/in/chrishadabhi",
@@ -217,7 +217,7 @@ const StudentRepresentativesPage = () => {
         <div className="container mx-auto px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl">
             <h1 className="text-5xl font-bold mb-4">
-              Student Chapter Representatives
+              Section Chapter Representatives
             </h1>
             <p className="text-xl">
               Meet the dedicated student leaders representing IEEE Signal Processing Society 
