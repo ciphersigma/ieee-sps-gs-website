@@ -83,7 +83,7 @@ const App = () => {
                 <CommitteePage />
               </MainLayout>
             } />
-  <Route path="/committee/student-chapter-reps" element={
+  <Route path="/committee/SCR-Team" element={
   <MainLayout>
     <StudentRepresentativesPage />
   </MainLayout>
