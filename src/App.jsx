@@ -7,7 +7,7 @@ import AdminLayout from './components/layout/AdminLayout';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
-import AboutPage from './pages/AboutPage'; // Import the new AboutPage
+import AboutPage from './pages/AboutPage';
 import CommitteePage from './pages/CommitteePage';
 import LoginPage from './pages/admin/LoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -17,6 +17,8 @@ import SettingsPage from './pages/admin/SettingsPage';
 import ContentManagement from './pages/admin/ContentManagement';
 import ContentForm from './pages/admin/ContentForm';
 import ContactPage from './pages/ContactPage';
+import NotFoundPage from './pages/NotFoundPage'; 
+import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -81,6 +83,11 @@ const App = () => {
                 <CommitteePage />
               </MainLayout>
             } />
+  <Route path="/committee/student-chapter-reps" element={
+  <MainLayout>
+    <StudentRepresentativesPage />
+  </MainLayout>
+} />
             <Route path="/committee/executive" element={
               <MainLayout>
                 <CommitteePage />
@@ -102,6 +109,7 @@ const App = () => {
                 </div>
               </MainLayout>
             } />
+
 
             {/* Routes for additional sections in the navigation bar */}
             <Route path="/opportunities/*" element={
@@ -153,11 +161,11 @@ const App = () => {
               </MainLayout>
             } />
             {/* Contact Page route */}
-<Route path="/contact" element={
-  <MainLayout>
-    <ContactPage />
-  </MainLayout>
-} />
+            <Route path="/contact" element={
+              <MainLayout>
+                <ContactPage />
+              </MainLayout>
+            } />
             {/* Public content routes - Temporarily commented out until components are created 
             <Route path="/news" element={
               <MainLayout>
@@ -261,15 +269,8 @@ const App = () => {
               </ProtectedRoute>
             } />
             
-            {/* 404 route */}
-            <Route path="*" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4 text-center">
-                  <h1 className="text-4xl font-bold mb-4">404</h1>
-                  <p className="text-xl">Page not found</p>
-                </div>
-              </MainLayout>
-            } />
+            {/* 404 route - Using NotFoundPage component instead of inline JSX */}
+            <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Router>
       </ThemeProvider>
