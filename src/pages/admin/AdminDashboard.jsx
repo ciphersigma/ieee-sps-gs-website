@@ -1,17 +1,15 @@
 // src/pages/admin/AdminDashboard.jsx
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
-  Calendar, Users, LogOut, Plus, FileText, Settings, 
-  BarChart2, TrendingUp, Image, MessageSquare, Activity,
-  CheckCircle, AlertCircle, Clock
+  Calendar, Users, FileText, Settings, Image,
+  BarChart2, MessageSquare, Activity, Clock, ChevronRight
 } from 'lucide-react';
 import { supabase, TABLES } from '../../services/supabase';
 
 const AdminDashboard = () => {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
   const [stats, setStats] = useState({
     events: { count: 0, loading: true },
     members: { count: 0, loading: true },
@@ -21,16 +19,6 @@ const AdminDashboard = () => {
   const [recentEvents, setRecentEvents] = useState([]);
   const [loadingRecentEvents, setLoadingRecentEvents] = useState(true);
   const [dashboardError, setDashboardError] = useState(null);
-
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/admin/login');
-    } catch (error) {
-      console.error('Failed to log out', error);
-    }
-  };
 
   // Fetch dashboard data
   useEffect(() => {
@@ -156,138 +144,136 @@ const AdminDashboard = () => {
   ];
 
   return (
-    <div className="py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Admin Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-600">
-              Welcome back, {user?.email}
+    <div className="py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Admin Header - Mobile Friendly */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+          <div className="mb-4 sm:mb-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Welcome, {user?.email?.split('@')[0] || 'Admin'}
             </p>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div>
             <Link 
               to="/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#0077B5] hover:bg-[#00588a]"
             >
               View Website
             </Link>
-            <button
-              onClick={handleLogout}
-              className="inline-flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-            >
-              <LogOut size={16} />
-              <span>Logout</span>
-            </button>
           </div>
         </div>
         
         {/* Error Alert */}
         {dashboardError && (
           <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
-              <p className="text-red-700">{dashboardError}</p>
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-700">{dashboardError}</p>
+              </div>
             </div>
           </div>
         )}
         
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+        {/* Quick Stats - Mobile Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {/* Events Stat */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center">
-            <div className="rounded-full p-3 bg-blue-100 mr-4">
-              <Calendar className="h-6 w-6 text-blue-600" />
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center mb-2">
+              <div className="rounded-full p-2 bg-blue-100 mr-3">
+                <Calendar className="h-4 w-4 text-blue-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">Events</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Events</p>
-              {stats.events.loading ? (
-                <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
-              ) : (
-                <p className="text-2xl font-bold text-gray-900">{stats.events.count}</p>
-              )}
-            </div>
+            {stats.events.loading ? (
+              <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-xl font-bold text-gray-900">{stats.events.count}</p>
+            )}
           </div>
           
           {/* Members Stat */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center">
-            <div className="rounded-full p-3 bg-green-100 mr-4">
-              <Users className="h-6 w-6 text-green-600" />
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center mb-2">
+              <div className="rounded-full p-2 bg-green-100 mr-3">
+                <Users className="h-4 w-4 text-green-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">Members</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Members</p>
-              {stats.members.loading ? (
-                <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
-              ) : (
-                <p className="text-2xl font-bold text-gray-900">{stats.members.count}</p>
-              )}
-            </div>
+            {stats.members.loading ? (
+              <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-xl font-bold text-gray-900">{stats.members.count}</p>
+            )}
           </div>
           
           {/* Gallery Stat */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center">
-            <div className="rounded-full p-3 bg-amber-100 mr-4">
-              <Image className="h-6 w-6 text-amber-600" />
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center mb-2">
+              <div className="rounded-full p-2 bg-amber-100 mr-3">
+                <Image className="h-4 w-4 text-amber-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">Images</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Gallery Images</p>
-              {stats.gallery.loading ? (
-                <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
-              ) : (
-                <p className="text-2xl font-bold text-gray-900">{stats.gallery.count}</p>
-              )}
-            </div>
+            {stats.gallery.loading ? (
+              <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-xl font-bold text-gray-900">{stats.gallery.count}</p>
+            )}
           </div>
           
           {/* Messages Stat */}
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center">
-            <div className="rounded-full p-3 bg-purple-100 mr-4">
-              <MessageSquare className="h-6 w-6 text-purple-600" />
+          <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+            <div className="flex items-center mb-2">
+              <div className="rounded-full p-2 bg-purple-100 mr-3">
+                <MessageSquare className="h-4 w-4 text-purple-600" />
+              </div>
+              <p className="text-sm font-medium text-gray-500">Messages</p>
             </div>
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Messages</p>
-              {stats.messages.loading ? (
-                <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
-              ) : (
-                <p className="text-2xl font-bold text-gray-900">{stats.messages.count}</p>
-              )}
-            </div>
+            {stats.messages.loading ? (
+              <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
+            ) : (
+              <p className="text-xl font-bold text-gray-900">{stats.messages.count}</p>
+            )}
           </div>
         </div>
         
-        {/* Dashboard Content Split */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        {/* Dashboard Content - Mobile First Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Recent Events */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 flex justify-between items-center">
               <h2 className="font-semibold text-gray-900">Recent Events</h2>
-              <Link to="/admin/events" className="text-sm text-blue-600 hover:text-blue-800">
+              <Link to="/admin/events" className="text-xs text-[#0077B5] hover:text-[#00588a]">
                 View All
               </Link>
             </div>
             
             {loadingRecentEvents ? (
-              <div className="p-6">
-                <div className="flex justify-center">
-                  <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-                </div>
+              <div className="p-4 flex justify-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0077B5]"></div>
               </div>
             ) : recentEvents.length === 0 ? (
-              <div className="p-6 text-center">
-                <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                <h3 className="text-lg font-medium text-gray-900">No events found</h3>
-                <p className="text-gray-500 mt-1">Get started by creating your first event</p>
-                <div className="mt-4">
+              <div className="p-4 text-center">
+                <Calendar className="mx-auto h-10 w-10 text-gray-400 mb-2" />
+                <h3 className="text-base font-medium text-gray-900">No events found</h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Get started by creating your first event
+                </p>
+                <div className="mt-3">
                   <Link 
                     to="/admin/events/new"
-                    className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    className="inline-flex items-center px-3 py-1.5 text-sm bg-[#0077B5] text-white rounded"
                   >
-                    <Plus size={16} />
-                    <span>Add New Event</span>
+                    Add New Event
                   </Link>
                 </div>
               </div>
@@ -295,22 +281,19 @@ const AdminDashboard = () => {
               <div className="divide-y divide-gray-200">
                 {recentEvents.map((event) => (
                   <div key={event.id} className="p-4 hover:bg-gray-50">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-                      <div>
-                        <h3 className="font-medium text-gray-900">{event.title}</h3>
-                        <div className="flex items-center mt-1 text-sm text-gray-500">
-                          <Clock className="h-4 w-4 mr-1" />
-                          <span>{formatDate(event.event_date)}</span>
-                          <span className="mx-2">•</span>
-                          <span>{event.location}</span>
-                        </div>
+                    <div className="flex flex-col space-y-1">
+                      <h3 className="font-medium text-gray-900 line-clamp-1">{event.title}</h3>
+                      <div className="flex items-center text-sm text-gray-500">
+                        <Clock className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
+                        <span>{formatDate(event.event_date)}</span>
                       </div>
-                      <div className="mt-2 md:mt-0">
+                      <div className="flex items-center text-sm text-gray-500 line-clamp-1">
+                        <span className="flex-1 truncate">{event.location || 'Location TBA'}</span>
                         <Link 
                           to={`/admin/events/edit/${event.id}`}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                          className="ml-2 text-xs text-[#0077B5] hover:text-[#00588a] flex items-center"
                         >
-                          Edit Event
+                          Edit <ChevronRight className="h-3 w-3 ml-0.5" />
                         </Link>
                       </div>
                     </div>
@@ -321,20 +304,20 @@ const AdminDashboard = () => {
           </div>
           
           {/* Quick Actions */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200">
               <h2 className="font-semibold text-gray-900">Quick Actions</h2>
             </div>
-            <div className="p-6">
-              <div className="space-y-4">
+            <div className="p-4">
+              <div className="space-y-3">
                 <Link 
                   to="/admin/events/new" 
                   className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="rounded-full p-2 bg-blue-100 mr-3">
-                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <Calendar className="h-4 w-4 text-blue-600" />
                   </div>
-                  <span className="font-medium text-gray-700">Add New Event</span>
+                  <span className="text-sm font-medium text-gray-700">Add New Event</span>
                 </Link>
                 
                 <Link 
@@ -342,9 +325,9 @@ const AdminDashboard = () => {
                   className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="rounded-full p-2 bg-amber-100 mr-3">
-                    <Image className="h-5 w-5 text-amber-600" />
+                    <Image className="h-4 w-4 text-amber-600" />
                   </div>
-                  <span className="font-medium text-gray-700">Manage Carousel</span>
+                  <span className="text-sm font-medium text-gray-700">Manage Carousel</span>
                 </Link>
                 
                 <Link 
@@ -352,9 +335,9 @@ const AdminDashboard = () => {
                   className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="rounded-full p-2 bg-purple-100 mr-3">
-                    <FileText className="h-5 w-5 text-purple-600" />
+                    <FileText className="h-4 w-4 text-purple-600" />
                   </div>
-                  <span className="font-medium text-gray-700">Add News Item</span>
+                  <span className="text-sm font-medium text-gray-700">Add News Item</span>
                 </Link>
                 
                 <Link 
@@ -362,35 +345,36 @@ const AdminDashboard = () => {
                   className="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <div className="rounded-full p-2 bg-gray-100 mr-3">
-                    <Settings className="h-5 w-5 text-gray-600" />
+                    <Settings className="h-4 w-4 text-gray-600" />
                   </div>
-                  <span className="font-medium text-gray-700">Site Settings</span>
+                  <span className="text-sm font-medium text-gray-700">Site Settings</span>
                 </Link>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Admin Modules */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Admin Modules - Improved Mobile Layout */}
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Admin Modules</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {adminModules.map((module) => (
             <Link
               key={module.id}
               to={module.link}
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all"
+              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all"
             >
               <div className="flex items-center">
-                <div className={`p-3 rounded-full ${module.color} inline-block`}>
-                  <module.icon size={24} />
+                <div className={`p-2 rounded-full ${module.color} inline-block`}>
+                  <module.icon size={20} />
                 </div>
                 {module.count !== undefined && (
-                  <div className="ml-auto bg-gray-100 px-2 py-1 rounded-full text-xs font-medium text-gray-600">
+                  <div className="ml-auto bg-gray-100 px-2 py-0.5 rounded-full text-xs font-medium text-gray-600">
                     {module.count}
                   </div>
                 )}
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mt-4 mb-2">{module.name}</h3>
-              <p className="text-gray-600 text-sm">{module.description}</p>
+              <h3 className="text-base font-medium text-gray-900 mt-3 mb-1">{module.name}</h3>
+              <p className="text-xs text-gray-600 line-clamp-2">{module.description}</p>
             </Link>
           ))}
         </div>
