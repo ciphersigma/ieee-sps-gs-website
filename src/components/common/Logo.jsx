@@ -1,9 +1,7 @@
 // src/components/common/Logo.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-// You'll need to add your logo image to the public/assets directory
-// For example: public/assets/images/ieee-sps-logo.png
+import logoImage from '../../assets/images/ieee-sps-logo.png'; // Import the image directly
 
 const Logo = ({ variant = 'default', size = 'md' }) => {
   // Size classes
@@ -19,7 +17,7 @@ const Logo = ({ variant = 'default', size = 'md' }) => {
   return (
     <Link to="/" className="flex items-center">
       <img 
-        src="src/assets/images/ieee-sps-logo.png" 
+        src={logoImage} // Use the imported image
         alt="IEEE Signal Processing Society Gujarat Chapter" 
         className={`${currentSize} w-auto`}
       />

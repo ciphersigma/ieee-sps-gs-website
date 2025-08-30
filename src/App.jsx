@@ -19,6 +19,7 @@ import ContentForm from './pages/admin/ContentForm';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage'; 
 import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
+import CarouselManager from './pages/admin/CarouselManager'; // Import the new component
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -83,11 +84,11 @@ const App = () => {
                 <CommitteePage />
               </MainLayout>
             } />
-  <Route path="/committee/SCR-Team" element={
-  <MainLayout>
-    <StudentRepresentativesPage />
-  </MainLayout>
-} />
+            <Route path="/committee/SCR-Team" element={
+              <MainLayout>
+                <StudentRepresentativesPage />
+              </MainLayout>
+            } />
             <Route path="/committee/executive" element={
               <MainLayout>
                 <CommitteePage />
@@ -233,6 +234,15 @@ const App = () => {
               <ProtectedRoute>
                 <AdminLayout>
                   <EventForm />
+                </AdminLayout>
+              </ProtectedRoute>
+            } />
+
+            {/* Carousel management route */}
+            <Route path="/admin/carousel" element={
+              <ProtectedRoute>
+                <AdminLayout>
+                  <CarouselManager />
                 </AdminLayout>
               </ProtectedRoute>
             } />
