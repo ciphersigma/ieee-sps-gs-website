@@ -3,23 +3,18 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import AdminLayout from './components/layout/AdminLayout';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
 import AboutPage from './pages/AboutPage';
 import CommitteePage from './pages/CommitteePage';
 import LoginPage from './pages/admin/LoginPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import EventsManagement from './pages/admin/EventsManagement';
-import EventForm from './pages/admin/EventForm';
-import SettingsPage from './pages/admin/SettingsPage';
-import ContentManagement from './pages/admin/ContentManagement';
-import ContentForm from './pages/admin/ContentForm';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage'; 
 import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
-import CarouselManager from './pages/admin/CarouselManager'; // Import the new component
+
+// Import AdminRoutes component
+import AdminRoutes from './routes/AdminRoutes';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -37,6 +32,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 const App = () => {
+  console.log("App component rendering");
   return (
     <AuthProvider>
       <ThemeProvider>
@@ -111,7 +107,6 @@ const App = () => {
               </MainLayout>
             } />
 
-
             {/* Routes for additional sections in the navigation bar */}
             <Route path="/opportunities/*" element={
               <MainLayout>
@@ -167,115 +162,14 @@ const App = () => {
                 <ContactPage />
               </MainLayout>
             } />
-            {/* Public content routes - Temporarily commented out until components are created 
-            <Route path="/news" element={
-              <MainLayout>
-                <NewsPage />
-              </MainLayout>
-            } />
-            <Route path="/news/:id" element={
-              <MainLayout>
-                <NewsDetailPage />
-              </MainLayout>
-            } />
-            <Route path="/publications" element={
-              <MainLayout>
-                <PublicationsPage />
-              </MainLayout>
-            } />
-            <Route path="/publications/:id" element={
-              <MainLayout>
-                <PublicationDetailPage />
-              </MainLayout>
-            } />
-            <Route path="/resources" element={
-              <MainLayout>
-                <ResourcesPage />
-              </MainLayout>
-            } />
-            <Route path="/blog" element={
-              <MainLayout>
-                <BlogPage />
-              </MainLayout>
-            } />
-            <Route path="/blog/:id" element={
-              <MainLayout>
-                <BlogDetailPage />
-              </MainLayout>
-            } />
-            */}
             
             {/* Admin login (without admin header) */}
             <Route path="/admin/login" element={<LoginPage />} />
-            
-            {/* Admin routes with AdminLayout */}
-            <Route path="/admin" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <AdminDashboard />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/events" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <EventsManagement />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/events/new" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <EventForm />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/events/edit/:id" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <EventForm />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
 
-            {/* Carousel management route */}
-            <Route path="/admin/carousel" element={
+            {/* Admin routes using AdminRoutes component */}
+            <Route path="/admin/*" element={
               <ProtectedRoute>
-                <AdminLayout>
-                  <CarouselManager />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-
-            {/* Settings route */}
-            <Route path="/admin/settings" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <SettingsPage />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-
-            {/* Content management routes */}
-            <Route path="/admin/content/:type" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <ContentManagement />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/content/:type/new" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <ContentForm />
-                </AdminLayout>
-              </ProtectedRoute>
-            } />
-            <Route path="/admin/content/:type/edit/:id" element={
-              <ProtectedRoute>
-                <AdminLayout>
-                  <ContentForm />
-                </AdminLayout>
+                <AdminRoutes />
               </ProtectedRoute>
             } />
             

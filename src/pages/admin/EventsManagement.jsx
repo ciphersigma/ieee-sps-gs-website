@@ -1,260 +1,444 @@
 // src/pages/admin/EventsManagement.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../../services/supabase';
 import { 
-  Calendar, Edit, Trash2, Plus, Search, Filter, 
-  ChevronDown, ExternalLink, AlertCircle, Check 
+  Calendar, Plus, Search, Filter, Trash2, Edit, 
+  ChevronDown, ChevronLeft, ChevronRight, Loader, 
+  AlertCircle, X, ExternalLink, Clock, MapPin 
 } from 'lucide-react';
+import { supabase, TABLES } from '../../services/supabase';
+import { format } from 'date-fns';
 
 const EventsManagement = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState({
-    type: 'all',
-    status: 'all'
-  });
-  const [showFilters, setShowFilters] = useState(false);
-  
-  // Fetch events from Supabase
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [timeFilter, setTimeFilter] = useState('all'); // 'all', 'upcoming', 'past'
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalEvents, setTotalEvents] = useState(0);
+  const [eventsPerPage] = useState(10);
+
+  const eventTypes = ['Workshop', 'Conference', 'Lecture', 'Seminar', 'Competition', 'Meeting'];
+
+  // Fetch events data
   useEffect(() => {
     const fetchEvents = async () => {
       try {
         setLoading(true);
-        const { data, error } = await supabase
-          .from('events')
-          .select('*')
-          .order('date', { ascending: false });
+        
+        // Count query to get total number of events
+        let countQuery = supabase
+          .from(TABLES.EVENTS)
+          .select('*', { count: 'exact', head: true });
+          
+        // Apply filters to count query
+        if (timeFilter === 'upcoming') {
+          const today = new Date().toISOString().split('T')[0];
+          countQuery = countQuery.gte('event_date', today);
+        } else if (timeFilter === 'past') {
+          const today = new Date().toISOString().split('T')[0];
+          countQuery = countQuery.lt('event_date', today);
+        }
+        
+        if (selectedTypes.length > 0) {
+          countQuery = countQuery.in('event_type', selectedTypes);
+        }
+        
+        if (searchQuery) {
+          countQuery = countQuery.or(
+            `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`
+          );
+        }
+        
+        const { count, error: countError } = await countQuery;
+        
+        if (countError) throw countError;
+        
+        setTotalEvents(count || 0);
+        
+        // Main query to fetch paginated events
+        let query = supabase
+          .from(TABLES.EVENTS)
+          .select('*');
+          
+        // Apply same filters to main query
+        if (timeFilter === 'upcoming') {
+          const today = new Date().toISOString().split('T')[0];
+          query = query.gte('event_date', today);
+        } else if (timeFilter === 'past') {
+          const today = new Date().toISOString().split('T')[0];
+          query = query.lt('event_date', today);
+        }
+        
+        if (selectedTypes.length > 0) {
+          query = query.in('event_type', selectedTypes);
+        }
+        
+        if (searchQuery) {
+          query = query.or(
+            `title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`
+          );
+        }
+        
+        // Add ordering
+        query = query.order('event_date', { ascending: timeFilter !== 'past' });
+        
+        // Add pagination
+        const from = (currentPage - 1) * eventsPerPage;
+        const to = from + eventsPerPage - 1;
+        
+        query = query.range(from, to);
+        
+        // Execute query
+        const { data, error } = await query;
         
         if (error) throw error;
         
         setEvents(data || []);
-      } catch (error) {
-        console.error('Error fetching events:', error);
-        setError('Failed to fetch events. Please try again later.');
-      } finally {
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching events:', err);
+        setError('Failed to load events. Please try again later.');
         setLoading(false);
       }
     };
     
     fetchEvents();
-  }, []);
-  
-  // Filter and search events
-  const filteredEvents = events.filter(event => {
-    // Filter by type
-    if (filters.type !== 'all' && event.type !== filters.type) {
-      return false;
+  }, [searchQuery, selectedTypes, timeFilter, currentPage, eventsPerPage]);
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalEvents / eventsPerPage);
+
+  // Handle page change
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+  };
+
+  // Toggle event type selection
+  const toggleEventType = (type) => {
+    if (selectedTypes.includes(type)) {
+      setSelectedTypes(selectedTypes.filter(t => t !== type));
+    } else {
+      setSelectedTypes([...selectedTypes, type]);
+    }
+    // Reset to first page when filter changes
+    setCurrentPage(1);
+  };
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedTypes([]);
+    setTimeFilter('all');
+    setCurrentPage(1);
+  };
+
+  // Handle search submission
+  const handleSearch = (e) => {
+    e.preventDefault();
+    // Reset to first page when search changes
+    setCurrentPage(1);
+  };
+
+  // Delete event handler
+  const handleDeleteEvent = async (id) => {
+    if (!confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
+      return;
     }
     
-    // Filter by status
-    const today = new Date();
-    const eventDate = new Date(event.date);
-    const isPast = eventDate < today;
-    
-    if (filters.status === 'upcoming' && isPast) {
-      return false;
-    }
-    
-    if (filters.status === 'past' && !isPast) {
-      return false;
-    }
-    
-    // Search term
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      return (
-        event.title.toLowerCase().includes(term) ||
-        event.location.toLowerCase().includes(term) ||
-        (event.description && event.description.toLowerCase().includes(term))
-      );
-    }
-    
-    return true;
-  });
-  
-  // Get unique event types for filter dropdown
-  const eventTypes = ['all', ...new Set(events.map(event => event.type))];
-  
-  // Delete event
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this event? This action cannot be undone.')) {
-      try {
-        const { error } = await supabase
-          .from('events')
-          .delete()
-          .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from(TABLES.EVENTS)
+        .delete()
+        .eq('id', id);
         
-        if (error) throw error;
-        
-        // Remove from state
-        setEvents(events.filter(event => event.id !== id));
-      } catch (error) {
-        console.error('Error deleting event:', error);
-        alert('Failed to delete event. Please try again.');
+      if (error) throw error;
+      
+      // Update local state to remove the deleted event
+      setEvents(events.filter(event => event.id !== id));
+      
+      // Update total count
+      setTotalEvents(prevTotal => prevTotal - 1);
+      
+      // If we deleted the last item on the page, go to previous page
+      if (events.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
       }
+    } catch (err) {
+      console.error('Error deleting event:', err);
+      setError('Failed to delete event. Please try again.');
     }
   };
-  
-  // Clear filters
-  const clearFilters = () => {
-    setFilters({
-      type: 'all',
-      status: 'all'
-    });
-    setSearchTerm('');
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    return format(new Date(dateString), 'MMM d, yyyy');
+  };
+
+  // Get event status
+  const getEventStatus = (eventDate) => {
+    const today = new Date();
+    const date = new Date(eventDate);
+    
+    if (date < today) {
+      return { label: 'Past', className: 'bg-gray-100 text-gray-800' };
+    }
+    
+    if (date.toDateString() === today.toDateString()) {
+      return { label: 'Today', className: 'bg-green-100 text-green-800' };
+    }
+    
+    return { label: 'Upcoming', className: 'bg-blue-100 text-blue-800' };
   };
 
   return (
-    <div className="pt-24 min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Page Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Events Management</h1>
-            <p className="text-gray-600">
-              Add, edit, or delete events for the IEEE SPS Gujarat Chapter
+    <div className="py-6 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        {/* Header with Add Event Button - Mobile Friendly */}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+          <div className="mb-4 sm:mb-0">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Event Management</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              {totalEvents} event{totalEvents !== 1 ? 's' : ''} found
             </p>
           </div>
           
           <Link 
             to="/admin/events/new" 
-            className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#0077B5] hover:bg-[#00588a]"
           >
-            <Plus size={16} />
-            <span>Add New Event</span>
+            <Plus className="mr-2 h-4 w-4" />
+            Add New Event
           </Link>
         </div>
         
-        {/* Search and Filters */}
-        <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            {/* Search Bar */}
-            <div className="relative flex-grow max-w-md">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Search events..."
-              />
-            </div>
-            
-            {/* Filters */}
-            <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
-              >
-                <Filter className="h-5 w-5" />
-                <span>Filters</span>
-                <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${showFilters ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {(filters.type !== 'all' || filters.status !== 'all' || searchTerm) && (
+        {/* Error Alert */}
+        {error && (
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md">
+            <div className="flex items-start">
+              <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 mr-2 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-red-700">{error}</p>
                 <button 
-                  onClick={clearFilters}
-                  className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  onClick={() => setError(null)} 
+                  className="mt-2 text-xs text-red-700 hover:text-red-900 underline"
                 >
-                  Clear All
+                  Dismiss
                 </button>
-              )}
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Search and Filter Section */}
+        <div className="mb-6">
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="relative mb-4">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search events..."
+              className="w-full px-4 py-2 pl-10 pr-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#0077B5]"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="h-5 w-5 text-gray-400" />
+            </div>
+            <button 
+              type="button" 
+              onClick={() => setSearchQuery('')}
+              className={`absolute inset-y-0 right-0 pr-3 flex items-center ${searchQuery ? 'visible' : 'invisible'}`}
+            >
+              <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            </button>
+          </form>
+          
+          {/* Filter Controls */}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <button
+              onClick={() => setFilterOpen(!filterOpen)}
+              className="flex items-center px-3 py-2 border rounded-md hover:bg-gray-50"
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              Filters
+              <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${filterOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {/* Time Filter */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => {
+                  setTimeFilter('all');
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  timeFilter === 'all' 
+                    ? 'bg-[#0077B5] text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => {
+                  setTimeFilter('upcoming');
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  timeFilter === 'upcoming' 
+                    ? 'bg-[#0077B5] text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Upcoming
+              </button>
+              <button
+                onClick={() => {
+                  setTimeFilter('past');
+                  setCurrentPage(1);
+                }}
+                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                  timeFilter === 'past' 
+                    ? 'bg-[#0077B5] text-white' 
+                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                }`}
+              >
+                Past
+              </button>
             </div>
           </div>
           
-          {/* Expanded Filters */}
-          {showFilters && (
-            <div className="mt-4 pt-4 border-t border-gray-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Event Type Filter */}
-              <div>
-                <label htmlFor="type-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Type
-                </label>
-                <select
-                  id="type-filter"
-                  value={filters.type}
-                  onChange={(e) => setFilters({ ...filters, type: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+          {/* Advanced Filters Panel */}
+          {filterOpen && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-md border border-gray-200">
+              <div className="mb-4">
+                <h3 className="font-medium mb-2">Event Type</h3>
+                <div className="flex flex-wrap gap-2">
                   {eventTypes.map(type => (
-                    <option key={type} value={type}>
-                      {type === 'all' ? 'All Types' : type}
-                    </option>
+                    <button
+                      key={type}
+                      onClick={() => toggleEventType(type)}
+                      className={`px-3 py-1.5 rounded-full text-sm ${
+                        selectedTypes.includes(type) 
+                          ? 'bg-[#0077B5] text-white' 
+                          : 'bg-white border border-gray-300 hover:bg-gray-50'
+                      }`}
+                    >
+                      {type}
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
               
-              {/* Event Status Filter */}
-              <div>
-                <label htmlFor="status-filter" className="block text-sm font-medium text-gray-700 mb-1">
-                  Event Status
-                </label>
-                <select
-                  id="status-filter"
-                  value={filters.status}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500"
+              <div className="flex justify-end">
+                <button
+                  onClick={clearFilters}
+                  className="text-sm text-[#0077B5] hover:text-[#00588a]"
                 >
-                  <option value="all">All Events</option>
-                  <option value="upcoming">Upcoming Events</option>
-                  <option value="past">Past Events</option>
-                </select>
+                  Clear all filters
+                </button>
               </div>
+            </div>
+          )}
+          
+          {/* Active Filters Display */}
+          {(selectedTypes.length > 0 || searchQuery || timeFilter !== 'all') && (
+            <div className="mt-2 flex flex-wrap items-center text-sm text-gray-600 gap-2">
+              <span className="mr-2">Active filters:</span>
+              {timeFilter !== 'all' && (
+                <span className="bg-gray-100 rounded-full px-2 py-1 text-xs flex items-center">
+                  {timeFilter === 'upcoming' ? 'Upcoming Events' : 'Past Events'}
+                  <button 
+                    onClick={() => {
+                      setTimeFilter('all');
+                      setCurrentPage(1);
+                    }}
+                    className="ml-1 p-0.5 hover:bg-gray-200 rounded-full"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
+              {selectedTypes.map(type => (
+                <span key={type} className="bg-[#0077B5]/10 text-[#0077B5] rounded-full px-2 py-1 text-xs flex items-center">
+                  {type}
+                  <button 
+                    onClick={() => toggleEventType(type)}
+                    className="ml-1 p-0.5 hover:bg-[#0077B5]/20 rounded-full"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+              {searchQuery && (
+                <span className="bg-gray-100 rounded-full px-2 py-1 text-xs flex items-center">
+                  "{searchQuery}"
+                  <button 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setCurrentPage(1);
+                    }}
+                    className="ml-1 p-0.5 hover:bg-gray-200 rounded-full"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              )}
             </div>
           )}
         </div>
         
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-red-400 mr-2" />
-              <p className="text-red-700">{error}</p>
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center py-12">
+            <div className="flex flex-col items-center">
+              <Loader className="h-8 w-8 text-[#0077B5] animate-spin" />
+              <p className="mt-2 text-gray-500">Loading events...</p>
             </div>
           </div>
         )}
         
-        {/* Loading State */}
-        {loading && (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-gray-300 border-t-blue-600 mb-4"></div>
-            <p className="text-gray-600">Loading events...</p>
+        {/* No Results State */}
+        {!loading && events.length === 0 && (
+          <div className="bg-white rounded-lg border border-gray-200 p-8 text-center">
+            <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-1">No events found</h3>
+            <p className="text-gray-500 mb-4">
+              {searchQuery || selectedTypes.length > 0 || timeFilter !== 'all'
+                ? 'Try adjusting your filters or search query.'
+                : 'Get started by creating your first event.'}
+            </p>
+            <Link
+              to="/admin/events/new"
+              className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#0077B5] hover:bg-[#00588a]"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add New Event
+            </Link>
           </div>
         )}
         
-        {/* Events Table */}
-        {!loading && filteredEvents.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-xl shadow-md">
-            <Calendar className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-            <p className="text-gray-500 mb-4">Try adjusting your search or filters to find what you're looking for.</p>
-            <Link 
-              to="/admin/events/new" 
-              className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
-            >
-              <Plus size={16} />
-              <span>Add New Event</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden">
-            <div className="overflow-x-auto">
+        {/* Events Table/Cards */}
+        {!loading && events.length > 0 && (
+          <>
+            {/* Desktop Table (Hidden on mobile) */}
+            <div className="hidden md:block overflow-hidden rounded-lg border border-gray-200 mb-6">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Event
+                      Event Details
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Date & Location
+                      Date
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Type
+                      Location
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
@@ -265,83 +449,71 @@ const EventsManagement = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredEvents.map((event) => {
-                    // Check if event is past or upcoming
-                    const today = new Date();
-                    const eventDate = new Date(event.date);
-                    const isPast = eventDate < today;
-                    
+                  {events.map((event) => {
+                    const status = getEventStatus(event.event_date);
                     return (
                       <tr key={event.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10 rounded bg-blue-100 flex items-center justify-center text-blue-600">
-                              <Calendar size={16} />
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {event.title}
+                            {event.image_url ? (
+                              <div className="flex-shrink-0 h-10 w-10 rounded bg-gray-200 mr-4">
+                                <img 
+                                  src={event.image_url} 
+                                  alt={event.title}
+                                  className="h-10 w-10 rounded object-cover"
+                                />
                               </div>
-                              {event.featured && (
-                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                  Featured
-                                </span>
+                            ) : (
+                              <div className="flex-shrink-0 h-10 w-10 rounded bg-[#0077B5]/10 flex items-center justify-center mr-4">
+                                <Calendar className="h-5 w-5 text-[#0077B5]" />
+                              </div>
+                            )}
+                            <div>
+                              <div className="font-medium text-gray-900">{event.title}</div>
+                              {event.event_type && (
+                                <div className="text-xs text-gray-500">{event.event_type}</div>
                               )}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900">
-                            {new Date(event.date).toLocaleDateString('en-US', {
-                              day: 'numeric',
-                              month: 'long', 
-                              year: 'numeric'
-                            })}
-                          </div>
-                          <div className="text-sm text-gray-500">{event.location}</div>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(event.event_date)}
+                          {event.event_time && (
+                            <div className="text-xs">{event.event_time}</div>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {event.location || 'TBA'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            event.type === 'Workshop' ? 'bg-blue-100 text-blue-800' :
-                            event.type === 'Lecture' ? 'bg-purple-100 text-purple-800' :
-                            event.type === 'Conference' ? 'bg-red-100 text-red-800' :
-                            event.type === 'Competition' ? 'bg-green-100 text-green-800' :
-                            event.type === 'Webinar' ? 'bg-teal-100 text-teal-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {event.type}
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${status.className}`}>
+                            {status.label}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            isPast ? 'bg-gray-100 text-gray-800' : 'bg-green-100 text-green-800'
-                          }`}>
-                            {isPast ? 'Past' : 'Upcoming'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <div className="flex justify-end space-x-2">
-                            <Link 
-                              to={`/events/${event.id}`} 
-                              target="_blank"
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm">
+                          <div className="flex items-center justify-end space-x-2">
+                            <a 
+                              href={`/events/${event.id}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
                               className="text-gray-500 hover:text-gray-700"
-                              title="View on site"
+                              title="View event"
                             >
-                              <ExternalLink size={18} />
-                            </Link>
-                            <Link 
-                              to={`/admin/events/edit/${event.id}`} 
-                              className="text-blue-600 hover:text-blue-800"
+                              <ExternalLink className="h-5 w-5" />
+                            </a>
+                            <Link
+                              to={`/admin/events/edit/${event.id}`}
+                              className="text-[#0077B5] hover:text-[#00588a]"
                               title="Edit event"
                             >
-                              <Edit size={18} />
+                              <Edit className="h-5 w-5" />
                             </Link>
-                            <button 
-                              onClick={() => handleDelete(event.id)} 
-                              className="text-red-600 hover:text-red-800"
+                            <button
+                              onClick={() => handleDeleteEvent(event.id)}
+                              className="text-red-500 hover:text-red-700"
                               title="Delete event"
                             >
-                              <Trash2 size={18} />
+                              <Trash2 className="h-5 w-5" />
                             </button>
                           </div>
                         </td>
@@ -351,7 +523,145 @@ const EventsManagement = () => {
                 </tbody>
               </table>
             </div>
-          </div>
+            
+            {/* Mobile Cards (Shown on mobile only) */}
+            <div className="md:hidden space-y-4 mb-6">
+              {events.map((event) => {
+                const status = getEventStatus(event.event_date);
+                return (
+                  <div key={event.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-3">
+                        <div>
+                          <h3 className="font-medium text-gray-900">{event.title}</h3>
+                          {event.event_type && (
+                            <span className="text-xs text-gray-500">{event.event_type}</span>
+                          )}
+                        </div>
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${status.className}`}>
+                          {status.label}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2 text-sm text-gray-500 mb-4">
+                        <div className="flex items-start">
+                          <Clock className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+                          <span>
+                            {formatDate(event.event_date)}
+                            {event.event_time && ` at ${event.event_time}`}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-start">
+                          <MapPin className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0" />
+                          <span>{event.location || 'Location TBA'}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex justify-between border-t border-gray-100 pt-3">
+                        <a 
+                          href={`/events/${event.id}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="text-gray-500 hover:text-gray-700 text-sm flex items-center"
+                        >
+                          <ExternalLink className="h-4 w-4 mr-1" />
+                          View
+                        </a>
+                        <Link
+                          to={`/admin/events/edit/${event.id}`}
+                          className="text-[#0077B5] hover:text-[#00588a] text-sm flex items-center"
+                        >
+                          <Edit className="h-4 w-4 mr-1" />
+                          Edit
+                        </Link>
+                        <button
+                          onClick={() => handleDeleteEvent(event.id)}
+                          className="text-red-500 hover:text-red-700 text-sm flex items-center"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                <div className="flex items-center text-sm text-gray-500">
+                  Showing {((currentPage - 1) * eventsPerPage) + 1}-{Math.min(currentPage * eventsPerPage, totalEvents)} of {totalEvents} events
+                </div>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className={`p-2 rounded-md ${
+                      currentPage === 1 
+                        ? 'text-gray-400 cursor-not-allowed' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  
+                  <div className="hidden sm:flex space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      // Create a window of pages around current page
+                      let pageNum;
+                      const totalPageWindows = Math.min(5, totalPages);
+                      
+                      if (currentPage <= 3) {
+                        // Show first 5 pages
+                        pageNum = i + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        // Show last 5 pages
+                        pageNum = totalPages - totalPageWindows + i + 1;
+                      } else {
+                        // Show 2 pages before and 2 after current
+                        pageNum = currentPage - 2 + i;
+                      }
+                      
+                      return (
+                        <button
+                          key={pageNum}
+                          onClick={() => handlePageChange(pageNum)}
+                          className={`px-3 py-1 rounded-md text-sm ${
+                            currentPage === pageNum
+                              ? 'bg-[#0077B5] text-white'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {pageNum}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  {/* Simple mobile pagination indicator */}
+                  <div className="sm:hidden flex items-center text-sm">
+                    <span>Page {currentPage} of {totalPages}</span>
+                  </div>
+                  
+                  <button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className={`p-2 rounded-md ${
+                      currentPage === totalPages 
+                        ? 'text-gray-400 cursor-not-allowed' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
