@@ -38,7 +38,7 @@ const StatsSection = () => {
                 className="bg-white rounded-lg shadow-md p-8 text-center transition-transform hover:transform hover:scale-105"
               >
                 <div className="flex justify-center mb-4">
-                  <Icon className="h-10 w-10 text-ieee-blue" />
+                  <Icon className="h-10 w-10 text-primary-600" />
                 </div>
                 <div className="text-4xl font-bold text-gray-900 mb-2">
                   {stat.value}

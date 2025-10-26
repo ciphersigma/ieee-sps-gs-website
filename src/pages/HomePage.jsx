@@ -5,7 +5,6 @@ import ImageCarousel from '../components/home/ImageCarousel';
 import AboutSection from '../components/home/AboutSection';
 import EventsSection from '../components/home/EventsSection';
 import TeamSection from '../components/home/TeamSection';
-import ContactSection from '../components/home/ContactSection';
 
 const HomePage = () => {
   return (
@@ -15,7 +14,6 @@ const HomePage = () => {
       <AboutSection />
       <EventsSection />
       <TeamSection />
-      <ContactSection />
     </main>
   );
 };

@@ -76,7 +76,7 @@ const AboutPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-[#8DC63F] to-[#0077B5] text-white py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-[#0077B5] to-[#1E40AF] text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
@@ -180,7 +180,7 @@ const AboutPage = () => {
                 {/* Vision Card */}
                 <div className="bg-white rounded-xl shadow-md p-8">
                   <div className="flex items-center mb-6">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#8DC63F]/10 text-[#8DC63F] mr-4">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center bg-[#0077B5]/10 text-[#0077B5] mr-4">
                       <Globe className="h-6 w-6" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900">
@@ -199,7 +199,7 @@ const AboutPage = () => {
                       "Empower the next generation of signal processing professionals"
                     ].map((item, idx) => (
                       <li key={idx} className="flex items-start">
-                        <ChevronRight className="mt-1 mr-2 flex-shrink-0 text-[#8DC63F]" size={16} />
+                        <ChevronRight className="mt-1 mr-2 flex-shrink-0 text-[#0077B5]" size={16} />
                         <span className="text-gray-700">{item}</span>
                       </li>
                     ))}
@@ -282,7 +282,7 @@ const AboutPage = () => {
               {/* Timeline */}
               <div className="relative">
                 {/* Timeline line */}
-                <div className="absolute left-0 md:left-1/2 top-0 h-full w-0.5 bg-gradient-to-b from-[#0077B5] via-[#8DC63F] to-[#0077B5]"></div>
+                <div className="absolute left-0 md:left-1/2 top-0 h-full w-0.5 bg-gradient-to-b from-[#0077B5] via-[#1E40AF] to-[#0077B5]"></div>
                 
                 {/* Timeline entries */}
                 <div className="space-y-12">
@@ -300,14 +300,14 @@ const AboutPage = () => {
                               ? 'right-0 md:right-auto md:left-1/2 md:-ml-3' 
                               : 'left-0 md:left-auto md:left-1/2 md:-ml-3'
                           } w-6 h-6 rounded-full border-4 border-white z-10`}
-                          style={{ background: index % 2 === 0 ? '#0077B5' : '#8DC63F' }}
+                          style={{ background: index % 2 === 0 ? '#0077B5' : '#1E40AF' }}
                           ></div>
                           
                           <div className="flex flex-col md:flex-row md:items-center mb-4">
                             <div className={`text-2xl font-bold mr-3 ${
                               index % 2 === 0 
                                 ? 'text-[#0077B5]' 
-                                : 'text-[#8DC63F]'
+                                : 'text-[#1E40AF]'
                             }`}>
                               {item.year}
                             </div>
@@ -454,7 +454,7 @@ const AboutPage = () => {
                       "Industry-oriented skill development programs"
                     ].map((item, idx) => (
                       <li key={idx} className="flex items-start">
-                        <ChevronRight className="mt-1 mr-2 flex-shrink-0 text-[#8DC63F]" size={16} />
+                        <ChevronRight className="mt-1 mr-2 flex-shrink-0 text-[#0077B5]" size={16} />
                         <span className="text-gray-700">{item}</span>
                       </li>
                     ))}
@@ -467,7 +467,7 @@ const AboutPage = () => {
       </section>
       
       {/* Join Us CTA - Exact match to reference image */}
-      <section className="bg-gradient-to-r from-[#8DC63F] via-[#3FA697] to-[#0077B5] py-16">
+      <section className="bg-gradient-to-r from-[#0077B5] via-[#1E40AF] to-[#3B82F6] py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
             <h2 className="text-3xl font-bold text-white mb-6">

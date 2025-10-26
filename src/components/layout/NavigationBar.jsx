@@ -67,8 +67,8 @@ const NavigationBar = () => {
                     onClick={() => toggleDropdown(item.key)}
                     className={`flex items-center text-sm font-medium px-1 py-3 transition-colors ${
                       dropdownOpen[item.key] ? 
-                        'text-ieee-green' : 
-                        'text-gray-700 hover:text-ieee-blue'
+                        'text-primary-500' : 
+                        'text-gray-700 hover:text-primary-600'
                     }`}
                   >
                     {item.name}
@@ -84,7 +84,7 @@ const NavigationBar = () => {
                             key={child.name}
                             to={child.href}
                             className={`block px-4 py-2 text-sm ${
-                              isActive(child.href) ? 'bg-gray-100 text-ieee-green' : 'text-gray-700 hover:bg-gray-50 hover:text-ieee-blue'
+                              isActive(child.href) ? 'bg-gray-100 text-primary-500' : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
                             }`}
                             onClick={() => toggleDropdown(item.key)}
                           >
@@ -100,8 +100,8 @@ const NavigationBar = () => {
                   to={item.href}
                   className={`inline-flex items-center text-sm font-medium px-3 py-3 transition-colors ${
                     isActive(item.href) ? 
-                      'text-ieee-green' : 
-                      'text-gray-700 hover:text-ieee-blue'
+                      'text-primary-500' : 
+                      'text-gray-700 hover:text-primary-600'
                   }`}
                 >
                   {item.name}

@@ -43,7 +43,7 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section - Matching other pages */}
-      <section className="bg-gradient-to-r from-ieee-green to-blue-600 text-white py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-primary-500 to-blue-600 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
@@ -80,7 +80,7 @@ const ContactPage = () => {
           <div className="mb-10">
             <Link 
               to="/" 
-              className="inline-flex items-center text-ieee-green hover:text-green-700 transition-colors"
+              className="inline-flex items-center text-primary-500 hover:text-green-700 transition-colors"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               <span>Back to Home</span>
@@ -96,8 +96,8 @@ const ContactPage = () => {
               
               <div className="space-y-8">
                 <div className="flex items-start">
-                  <div className="bg-ieee-green/10 p-3 rounded-full mr-4">
-                    <MapPin className="h-6 w-6 text-ieee-green" />
+                  <div className="bg-primary-500/10 p-3 rounded-full mr-4">
+                    <MapPin className="h-6 w-6 text-primary-500" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Our Address</h3>
@@ -110,21 +110,21 @@ const ContactPage = () => {
                 </div>
                 
                 <div className="flex items-start">
-                  <div className="bg-ieee-green/10 p-3 rounded-full mr-4">
-                    <Mail className="h-6 w-6 text-ieee-green" />
+                  <div className="bg-primary-500/10 p-3 rounded-full mr-4">
+                    <Mail className="h-6 w-6 text-primary-500" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Email Us</h3>
                     <p className="text-gray-600">
-                      <a href="mailto:sps.gujarat@ieee.org" className="hover:text-ieee-blue">sps.gujarat@ieee.org</a><br />
-                      <a href="mailto:chair.sps.gujarat@ieee.org" className="hover:text-ieee-blue">chair.sps.gujarat@ieee.org</a>
+                      <a href="mailto:sps.gujarat@ieee.org" className="hover:text-primary-600">sps.gujarat@ieee.org</a><br />
+                      <a href="mailto:chair.sps.gujarat@ieee.org" className="hover:text-primary-600">chair.sps.gujarat@ieee.org</a>
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex items-start">
-                  <div className="bg-ieee-green/10 p-3 rounded-full mr-4">
-                    <Phone className="h-6 w-6 text-ieee-green" />
+                  <div className="bg-primary-500/10 p-3 rounded-full mr-4">
+                    <Phone className="h-6 w-6 text-primary-500" />
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold mb-2">Call Us</h3>
@@ -188,7 +188,7 @@ const ContactPage = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                       />
                     </div>
                     
@@ -203,7 +203,7 @@ const ContactPage = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                       />
                     </div>
                   </div>
@@ -219,7 +219,7 @@ const ContactPage = () => {
                       value={formData.subject}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     />
                   </div>
                   
@@ -234,14 +234,14 @@ const ContactPage = () => {
                       value={formData.message}
                       onChange={handleInputChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     ></textarea>
                   </div>
                   
                   <div className="text-right">
                     <button
                       type="submit"
-                      className="inline-flex items-center px-6 py-3 bg-ieee-green text-white font-medium rounded-md hover:bg-green-600 transition-colors"
+                      className="inline-flex items-center px-6 py-3 bg-primary-500 text-white font-medium rounded-md hover:bg-green-600 transition-colors"
                     >
                       <span>Send Message</span>
                       <Send className="ml-2 h-4 w-4" />

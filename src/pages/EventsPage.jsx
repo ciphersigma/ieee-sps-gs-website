@@ -17,7 +17,7 @@ const EventsPage = () => {
   const [activeFilters, setActiveFilters] = useState({
     types: [],
     upcoming: true,
-    past: false
+    past: true  // Changed to true to show both by default
   });
 
   // Fetch events on component mount
@@ -38,7 +38,7 @@ const EventsPage = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('date', { ascending: activeFilters.upcoming });
+        .order('date', { ascending: false });  // Changed to descending to show latest first
       
       if (error) throw error;
       
@@ -84,6 +84,7 @@ const EventsPage = () => {
     } else if (!activeFilters.upcoming && activeFilters.past) {
       filtered = filtered.filter(event => event.date < today);
     }
+    // If both are true or both are false, show all events
     
     setFilteredEvents(filtered);
   };
@@ -114,7 +115,7 @@ const EventsPage = () => {
     setActiveFilters({
       types: [],
       upcoming: true,
-      past: false
+      past: true  // Changed to true to reset to showing all
     });
     setSearchTerm('');
   };
@@ -132,7 +133,7 @@ const EventsPage = () => {
   const getEventTypeColor = (type) => {
     switch (type) {
       case 'Workshop':
-        return 'bg-blue-100 text-ieee-blue';
+        return 'bg-blue-100 text-primary-600';
       case 'Lecture':
         return 'bg-purple-100 text-purple-800';
       case 'Conference':
@@ -180,7 +181,7 @@ const EventsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-ieee-green to-ieee-blue text-white py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-primary-500 to-primary-600 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
@@ -221,7 +222,7 @@ const EventsPage = () => {
                 placeholder="Search events..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
               />
               {searchTerm && (
                 <button 
@@ -239,33 +240,33 @@ const EventsPage = () => {
               {activeFilters.types.map(type => (
                 <span 
                   key={type}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-ieee-green/10 text-ieee-green"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-500/10 text-primary-500"
                 >
                   {type}
                   <button 
                     onClick={() => toggleFilter('types', type)}
-                    className="ml-1 text-ieee-green focus:outline-none"
+                    className="ml-1 text-primary-500 focus:outline-none"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
               ))}
               
-              {activeFilters.upcoming && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-ieee-blue/10 text-ieee-blue">
-                  Upcoming
+              {activeFilters.upcoming && !activeFilters.past && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary-600/10 text-primary-600">
+                  Upcoming Only
                   <button 
                     onClick={() => toggleFilter('time', 'upcoming')}
-                    className="ml-1 text-ieee-blue focus:outline-none"
+                    className="ml-1 text-primary-600 focus:outline-none"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </span>
               )}
               
-              {activeFilters.past && (
+              {!activeFilters.upcoming && activeFilters.past && (
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-700">
-                  Past
+                  Past Only
                   <button 
                     onClick={() => toggleFilter('time', 'past')}
                     className="ml-1 text-gray-700 focus:outline-none"
@@ -298,7 +299,7 @@ const EventsPage = () => {
                               type="checkbox"
                               checked={activeFilters.types.includes(type)}
                               onChange={() => toggleFilter('types', type)}
-                              className="h-4 w-4 text-ieee-green focus:ring-ieee-green rounded"
+                              className="h-4 w-4 text-primary-500 focus:ring-primary-500 rounded"
                             />
                             <span className="ml-2 text-gray-700">{type}</span>
                           </label>
@@ -314,7 +315,7 @@ const EventsPage = () => {
                             type="checkbox"
                             checked={activeFilters.upcoming}
                             onChange={() => toggleFilter('time', 'upcoming')}
-                            className="h-4 w-4 text-ieee-green focus:ring-ieee-green rounded"
+                            className="h-4 w-4 text-primary-500 focus:ring-primary-500 rounded"
                           />
                           <span className="ml-2 text-gray-700">Upcoming</span>
                         </label>
@@ -323,7 +324,7 @@ const EventsPage = () => {
                             type="checkbox"
                             checked={activeFilters.past}
                             onChange={() => toggleFilter('time', 'past')}
-                            className="h-4 w-4 text-ieee-green focus:ring-ieee-green rounded"
+                            className="h-4 w-4 text-primary-500 focus:ring-primary-500 rounded"
                           />
                           <span className="ml-2 text-gray-700">Past</span>
                         </label>
@@ -339,7 +340,7 @@ const EventsPage = () => {
                       </button>
                       <button
                         onClick={() => setFilterOpen(false)}
-                        className="text-sm text-ieee-blue hover:text-ieee-green font-medium"
+                        className="text-sm text-primary-600 hover:text-primary-500 font-medium"
                       >
                         Apply
                       </button>
@@ -358,7 +359,7 @@ const EventsPage = () => {
           {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center py-20">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ieee-green"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
             </div>
           )}
           
@@ -371,7 +372,7 @@ const EventsPage = () => {
               </div>
               <button
                 onClick={() => fetchEvents()}
-                className="mt-4 px-4 py-2 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors"
+                className="mt-4 px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
               >
                 Try Again
               </button>
@@ -386,7 +387,7 @@ const EventsPage = () => {
               <p className="text-gray-500 mb-6">Try adjusting your search or filters</p>
               <button
                 onClick={clearFilters}
-                className="px-4 py-2 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors"
+                className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
               >
                 Clear Filters
               </button>
@@ -418,7 +419,7 @@ const EventsPage = () => {
                   <div 
                     key={event.id} 
                     className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 ${
-                      event.featured ? 'ring-2 ring-ieee-green' : ''
+                      event.featured ? 'ring-2 ring-primary-500' : ''
                     }`}
                   >
                     {/* Event Image or Color Banner */}
@@ -430,7 +431,7 @@ const EventsPage = () => {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-r from-ieee-blue to-ieee-green flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-r from-primary-600 to-primary-500 flex items-center justify-center">
                           <span className="text-white text-lg font-medium">{event.type || 'Event'}</span>
                         </div>
                       )}
@@ -446,7 +447,7 @@ const EventsPage = () => {
                       
                       {event.featured && (
                         <div className="absolute top-4 left-4">
-                          <span className="px-3 py-1 bg-ieee-green text-white rounded-full text-xs font-medium">
+                          <span className="px-3 py-1 bg-primary-500 text-white rounded-full text-xs font-medium">
                             Featured
                           </span>
                         </div>
@@ -455,7 +456,7 @@ const EventsPage = () => {
                     
                     <div className="p-6">
                       {/* Date */}
-                      <div className="flex items-center space-x-2 text-sm text-ieee-blue mb-3">
+                      <div className="flex items-center space-x-2 text-sm text-primary-600 mb-3">
                         <Calendar className="h-4 w-4 flex-shrink-0" />
                         <span>{formatDate(event.date)}</span>
                       </div>
@@ -485,7 +486,7 @@ const EventsPage = () => {
                       {/* Action Button */}
                       <Link 
                         to={`/events/${event.id}`} 
-                        className="inline-flex items-center justify-center w-full py-2 bg-ieee-blue text-white rounded-md hover:bg-secondary-600 transition-colors"
+                        className="inline-flex items-center justify-center w-full py-2 bg-primary-600 text-white rounded-md hover:bg-secondary-600 transition-colors"
                       >
                         <span>View Details</span>
                         <ArrowRight className="ml-2 h-4 w-4" />

@@ -83,7 +83,7 @@ const ContactSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
             Contact Us
-            <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Get in touch with the IEEE Signal Processing Society Gujarat Chapter
@@ -100,12 +100,12 @@ const ContactSection = () => {
               
               <div className="space-y-6">
                 <div className="flex items-start">
-                  <Mail className="h-6 w-6 text-ieee-green mr-3 flex-shrink-0" />
+                  <Mail className="h-6 w-6 text-primary-500 mr-3 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium text-gray-900">Email</h4>
                     <a 
                       href="mailto:contact@ieee-sps-gujarat.org" 
-                      className="text-gray-600 hover:text-ieee-blue transition-colors"
+                      className="text-gray-600 hover:text-primary-600 transition-colors"
                     >
                       contact@ieee-sps-gujarat.org
                     </a>
@@ -113,12 +113,12 @@ const ContactSection = () => {
                 </div>
                 
                 <div className="flex items-start">
-                  <Phone className="h-6 w-6 text-ieee-green mr-3 flex-shrink-0" />
+                  <Phone className="h-6 w-6 text-primary-500 mr-3 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium text-gray-900">Phone</h4>
                     <a 
                       href="tel:+919586356174" 
-                      className="text-gray-600 hover:text-ieee-blue transition-colors"
+                      className="text-gray-600 hover:text-primary-600 transition-colors"
                     >
                       +91 95863 56174
                     </a>
@@ -126,7 +126,7 @@ const ContactSection = () => {
                 </div>
                 
                 <div className="flex items-start">
-                  <MapPin className="h-6 w-6 text-ieee-green mr-3 flex-shrink-0" />
+                  <MapPin className="h-6 w-6 text-primary-500 mr-3 flex-shrink-0" />
                   <div>
                     <h4 className="font-medium text-gray-900">Address</h4>
                     <p className="text-gray-600">
@@ -144,7 +144,7 @@ const ContactSection = () => {
                     href="https://www.linkedin.com/company/ieee-sps-gujarat" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-ieee-blue transition-colors"
+                    className="text-gray-500 hover:text-primary-600 transition-colors"
                     aria-label="LinkedIn"
                   >
                     <Linkedin className="h-6 w-6" />
@@ -153,7 +153,7 @@ const ContactSection = () => {
                     href="https://twitter.com/ieee_sps_gujarat" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-ieee-blue transition-colors"
+                    className="text-gray-500 hover:text-primary-600 transition-colors"
                     aria-label="Twitter"
                   >
                     <Twitter className="h-6 w-6" />
@@ -162,7 +162,7 @@ const ContactSection = () => {
                     href="https://facebook.com/ieeespsgujarat" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-ieee-blue transition-colors"
+                    className="text-gray-500 hover:text-primary-600 transition-colors"
                     aria-label="Facebook"
                   >
                     <Facebook className="h-6 w-6" />
@@ -171,7 +171,7 @@ const ContactSection = () => {
                     href="https://instagram.com/ieee_sps_gujarat" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-gray-500 hover:text-ieee-blue transition-colors"
+                    className="text-gray-500 hover:text-primary-600 transition-colors"
                     aria-label="Instagram"
                   >
                     <Instagram className="h-6 w-6" />
@@ -217,7 +217,7 @@ const ContactSection = () => {
                       value={formData.name}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                       placeholder="John Doe"
                     />
                   </div>
@@ -234,7 +234,7 @@ const ContactSection = () => {
                       value={formData.email}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                       placeholder="john@example.com"
                     />
                   </div>
@@ -251,7 +251,7 @@ const ContactSection = () => {
                     name="subject"
                     value={formData.subject}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="How can we help you?"
                   />
                 </div>
@@ -268,7 +268,7 @@ const ContactSection = () => {
                     onChange={handleChange}
                     required
                     rows={6}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-ieee-green focus:border-ieee-green"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
                     placeholder="Write your message here..."
                   ></textarea>
                 </div>
@@ -278,7 +278,7 @@ const ContactSection = () => {
                   <button
                     type="submit"
                     disabled={loading}
-                    className={`inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-ieee-green hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-ieee-green transition-colors ${
+                    className={`inline-flex items-center px-6 py-3 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors ${
                       loading ? 'opacity-70 cursor-not-allowed' : ''
                     }`}
                   >

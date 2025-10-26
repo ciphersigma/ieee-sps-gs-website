@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Calendar, MapPin, Clock, Users, ArrowLeft, 
-  ExternalLink, Share2, Bookmark, Download
+  ExternalLink, Share2, ArrowRight
 } from 'lucide-react';
 import { supabase } from '../services/supabase';
 
@@ -11,11 +11,13 @@ const EventDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
+  const [relatedEvents, setRelatedEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchEventDetails();
+    fetchRelatedEvents();
   }, [id]);
 
   const fetchEventDetails = async () => {
@@ -44,9 +46,31 @@ const EventDetailPage = () => {
     }
   };
 
+  const fetchRelatedEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .neq('id', id)
+        .order('date', { ascending: false })
+        .limit(3);
+      
+      if (error) throw error;
+      setRelatedEvents(data || []);
+    } catch (err) {
+      console.error('Error fetching related events:', err);
+    }
+  };
+
   // Format date
   const formatDate = (dateString) => {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  };
+
+  // Format short date for event cards
+  const formatShortDate = (dateString) => {
+    const options = { month: 'short', day: 'numeric', year: 'numeric' };
     return new Date(dateString).toLocaleDateString('en-US', options);
   };
 
@@ -327,9 +351,9 @@ const EventDetailPage = () => {
                 )}
               </div>
 
-              {/* Featured Badge */}
+              {/* Featured Badge - FIXED: Added margin-top for spacing */}
               {event.featured && (
-                <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl shadow-md p-6 text-center">
+                <div className="bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl shadow-md p-6 text-center mt-6">
                   <h3 className="text-lg font-bold mb-2">Featured Event</h3>
                   <p className="text-sm opacity-90">
                     This is a highlighted event from IEEE SPS Gujarat Chapter
@@ -341,20 +365,85 @@ const EventDetailPage = () => {
         </div>
       </section>
 
-      {/* Related Events Section */}
+      {/* Related Events Section - UPDATED with event tiles */}
       <section className="py-12 bg-white border-t border-gray-200">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8">
+          <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">More Events</h2>
             <p className="text-gray-600">Discover other upcoming events</p>
           </div>
           
+          {/* Event Tiles Grid */}
+          {relatedEvents.length > 0 ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+              {relatedEvents.map((relatedEvent) => (
+                <Link
+                  key={relatedEvent.id}
+                  to={`/events/${relatedEvent.id}`}
+                  className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group"
+                >
+                  {/* Event Image */}
+                  <div className="h-40 relative overflow-hidden">
+                    {relatedEvent.image ? (
+                      <img 
+                        src={relatedEvent.image} 
+                        alt={relatedEvent.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-r from-primary-600 to-primary-500 flex items-center justify-center">
+                        <span className="text-white text-sm font-medium">{relatedEvent.type || 'Event'}</span>
+                      </div>
+                    )}
+                    
+                    {/* Event Type Badge */}
+                    {relatedEvent.type && (
+                      <div className="absolute top-3 right-3">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getEventTypeColor(relatedEvent.type)}`}>
+                          {relatedEvent.type}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Event Info */}
+                  <div className="p-4">
+                    {/* Date */}
+                    <div className="flex items-center text-xs text-primary-600 mb-2">
+                      <Calendar className="h-3 w-3 mr-1" />
+                      <span>{formatShortDate(relatedEvent.date)}</span>
+                    </div>
+                    
+                    {/* Title */}
+                    <h3 className="text-base font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary-500 transition-colors">
+                      {relatedEvent.title}
+                    </h3>
+                    
+                    {/* Location */}
+                    {relatedEvent.location && (
+                      <div className="flex items-center text-xs text-gray-600">
+                        <MapPin className="h-3 w-3 mr-1" />
+                        <span className="line-clamp-1">{relatedEvent.location}</span>
+                      </div>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600 mb-6">No other events available at the moment.</p>
+            </div>
+          )}
+          
+          {/* View All Events Button */}
           <div className="text-center">
             <Link
               to="/events"
               className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-md hover:bg-secondary-600 transition-colors"
             >
               View All Events
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </div>
         </div>

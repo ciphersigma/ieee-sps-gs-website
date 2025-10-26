@@ -6,15 +6,22 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
+import EventDetailPage from './pages/EventDetailPage'; // NEW: Import EventDetailPage
 import AboutPage from './pages/AboutPage';
+import ResearchPage from './pages/ResearchPage';
 import CommitteePage from './pages/CommitteePage';
 import LoginPage from './pages/admin/LoginPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage'; 
 import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
+<<<<<<< HEAD
 
 // Import AdminRoutes component
 import AdminRoutes from './routes/AdminRoutes';
+=======
+import CarouselManager from './pages/admin/CarouselManager';
+import PlaceholderPage from './components/common/PlaceholderPage';
+>>>>>>> test
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -50,10 +57,24 @@ const App = () => {
               </MainLayout>
             } />
             
+            {/* NEW: Event Detail Page Route */}
+            <Route path="/events/:id" element={
+              <MainLayout>
+                <EventDetailPage />
+              </MainLayout>
+            } />
+            
             {/* About Us route */}
             <Route path="/about" element={
               <MainLayout>
                 <AboutPage />
+              </MainLayout>
+            } />
+            
+            {/* Research route */}
+            <Route path="/research" element={
+              <MainLayout>
+                <ResearchPage />
               </MainLayout>
             } />
             
@@ -90,6 +111,7 @@ const App = () => {
                 <CommitteePage />
               </MainLayout>
             } />
+<<<<<<< HEAD
             <Route path="/committee/past" element={
               <MainLayout>
                 <div className="container mx-auto py-12 px-4">
@@ -156,6 +178,16 @@ const App = () => {
                 </div>
               </MainLayout>
             } />
+=======
+            <Route path="/committee/past" element={<MainLayout><PlaceholderPage title="Past Committee" /></MainLayout>} />
+            <Route path="/committee/former-chair" element={<MainLayout><PlaceholderPage title="Former Chair" /></MainLayout>} />
+            <Route path="/opportunities/*" element={<MainLayout><PlaceholderPage title="Opportunities" /></MainLayout>} />
+            <Route path="/student/*" element={<MainLayout><PlaceholderPage title="Student Corner" /></MainLayout>} />
+            <Route path="/awards" element={<MainLayout><PlaceholderPage title="Awards" /></MainLayout>} />
+            <Route path="/newsletter" element={<MainLayout><PlaceholderPage title="Newsletter" /></MainLayout>} />
+            <Route path="/gallery" element={<MainLayout><PlaceholderPage title="Photo Gallery" /></MainLayout>} />
+            <Route path="/join" element={<MainLayout><PlaceholderPage title="Join IEEE SPS Gujarat" description="Membership information coming soon..." /></MainLayout>} />
+>>>>>>> test
             {/* Contact Page route */}
             <Route path="/contact" element={
               <MainLayout>

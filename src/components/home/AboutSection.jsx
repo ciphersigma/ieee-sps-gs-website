@@ -36,7 +36,7 @@ const AboutSection = () => {
           <div className="inline-block">
             <h2 className="text-3xl md:text-4xl font-bold relative inline-block">
               About IEEE SPS Gujarat
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
             </h2>
           </div>
           <p className="mt-6 text-xl text-gray-600 max-w-3xl mx-auto">
@@ -48,7 +48,7 @@ const AboutSection = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center mb-20">
           {/* Left Column: Text Content */}
           <div>
-            <div className="mb-8 relative pl-5 border-l-4 border-ieee-green">
+            <div className="mb-8 relative pl-5 border-l-4 border-primary-500">
               <h3 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h3>
               <p className="text-gray-700">
                 The IEEE Signal Processing Society Gujarat Chapter is dedicated to promoting research, development, and education in signal processing, while fostering professional growth and networking opportunities for our members.
@@ -67,7 +67,7 @@ const AboutSection = () => {
             <div className="mt-8">
               <Link 
                 to="/about" 
-                className="inline-flex items-center px-6 py-3 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-all duration-300 shadow-md"
+                className="inline-flex items-center px-6 py-3 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-all duration-300 shadow-md"
               >
                 <Globe className="mr-2 h-5 w-5" />
                 Learn More About Us
@@ -86,23 +86,23 @@ const AboutSection = () => {
               />
             </div>
             {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-24 h-24 border-t-4 border-r-4 border-ieee-green -mt-4 -mr-4 z-0"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 border-b-4 border-l-4 border-ieee-green -mb-4 -ml-4 z-0"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 border-t-4 border-r-4 border-primary-500 -mt-4 -mr-4 z-0"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 border-b-4 border-l-4 border-primary-500 -mb-4 -ml-4 z-0"></div>
           </div>
         </div>
 
         {/* What We Do Section */}
         <div className="mt-20">
           <h3 className="text-2xl font-bold text-center mb-12">
-            <span className="inline-block pb-2 border-b-4 border-ieee-green">What We Do</span>
+            <span className="inline-block pb-2 border-b-4 border-primary-500">What We Do</span>
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {activities.map((activity, index) => {
               const Icon = activity.icon;
               return (
                 <div key={index} className="bg-gray-50 rounded-lg p-6 shadow-md hover:shadow-lg transition-shadow">
-                  <div className="bg-ieee-green/10 p-3 rounded-full inline-block mb-4">
-                    <Icon className="h-8 w-8 text-ieee-green" />
+                  <div className="bg-primary-500/10 p-3 rounded-full inline-block mb-4">
+                    <Icon className="h-8 w-8 text-primary-500" />
                   </div>
                   <h4 className="text-xl font-bold text-gray-900 mb-2">{activity.title}</h4>
                   <p className="text-gray-600">{activity.description}</p>
