@@ -8,57 +8,59 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // IEEE SPS Brand Colors
-        'ieee-blue': '#0077B5',   // IEEE blue
-        'ieee-green': '#8DC63F',  // IEEE SPS green
-        'ieee-black': '#000000',  // Added black
-        'ieee-gray': '#CCCCCC',   // Added light gray
-        'ieee-dark': '#003366',   // Kept this as it might be useful
+        // Official IEEE SPS Brand Colors
+        'ieee-blue': '#003f7f',     // Official IEEE SPS primary blue
+        'ieee-light-blue': '#0066cc', // IEEE SPS light blue
+        'ieee-navy': '#002654',     // IEEE SPS navy blue
+        'ieee-white': '#ffffff',    // Pure white
+        'ieee-gray': '#f8f9fa',     // Light gray background
+        'ieee-dark-gray': '#6c757d', // Dark gray text
+        'ieee-border': '#dee2e6',   // Border gray
         
-        // Primary palette based on IEEE SPS green
+        // Primary palette - IEEE SPS Blue theme
         primary: {
-          50: '#f4f9e8',
-          100: '#e9f3d1',
-          200: '#d3e7a3',
-          300: '#bddb75',
-          400: '#a7cf47',
-          500: '#8DC63F', // IEEE green as the main primary color
-          600: '#71a032',
-          700: '#557826',
-          800: '#395019',
-          900: '#1c280d',
+          50: '#e6f0ff',
+          100: '#cce0ff',
+          200: '#99c2ff',
+          300: '#66a3ff',
+          400: '#3385ff',
+          500: '#003f7f', // Official IEEE SPS blue
+          600: '#003366',
+          700: '#00264d',
+          800: '#001a33',
+          900: '#000d1a',
         },
-        // Secondary palette based on IEEE blue
+        // Secondary palette - Complementary blues
         secondary: {
-          50: '#e6f2f9',
-          100: '#cce5f3',
-          200: '#99cbe7',
-          300: '#66b1db',
-          400: '#3397cf',
-          500: '#0077B5', // IEEE blue as the secondary color
-          600: '#006699',
-          700: '#004d73',
-          800: '#00334d',
-          900: '#001a26',
+          50: '#e6f2ff',
+          100: '#cce6ff',
+          200: '#99ccff',
+          300: '#66b3ff',
+          400: '#3399ff',
+          500: '#0066cc', // IEEE SPS light blue
+          600: '#0052a3',
+          700: '#003d7a',
+          800: '#002952',
+          900: '#001429',
         },
-        // Accent palette kept for additional design options
+        // Accent palette - Professional grays
         accent: {
-          50: '#fdf4ff',
-          100: '#fae8ff',
-          200: '#f5d0fe',
-          300: '#f0abfc',
-          400: '#e879f9',
-          500: '#d946ef',
-          600: '#c026d3',
-          700: '#a21caf',
-          800: '#86198f',
-          900: '#701a75',
+          50: '#f8f9fa',
+          100: '#e9ecef',
+          200: '#dee2e6',
+          300: '#ced4da',
+          400: '#adb5bd',
+          500: '#6c757d',
+          600: '#495057',
+          700: '#343a40',
+          800: '#212529',
+          900: '#000000',
         }
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        'display': ['Poppins', 'system-ui', '-apple-system', 'sans-serif'],
-        'mono': ['JetBrains Mono', 'Monaco', 'Cascadia Code', 'monospace'],
+        'sans': ['Arial', 'Helvetica', 'sans-serif'], // IEEE SPS uses Arial/Helvetica
+        'display': ['Arial', 'Helvetica', 'sans-serif'],
+        'mono': ['Consolas', 'Monaco', 'Courier New', 'monospace'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],
@@ -164,9 +166,9 @@ module.exports = {
     },
   },
   plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-    require('@tailwindcss/aspect-ratio'),
+    ...(process.env.NODE_ENV !== 'production' ? [require('@tailwindcss/forms')] : [require('@tailwindcss/forms')]),
+    ...(process.env.NODE_ENV !== 'production' ? [require('@tailwindcss/typography')] : [require('@tailwindcss/typography')]),
+    ...(process.env.NODE_ENV !== 'production' ? [require('@tailwindcss/aspect-ratio')] : [require('@tailwindcss/aspect-ratio')]),
     // Custom plugin for utilities
     function({ addUtilities }) {
       const newUtilities = {

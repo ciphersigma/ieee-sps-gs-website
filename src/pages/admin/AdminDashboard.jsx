@@ -11,82 +11,57 @@ import { supabase, TABLES } from '../../services/supabase';
 const AdminDashboard = () => {
   const { user } = useAuth();
   const [stats, setStats] = useState({
-    events: { count: 0, loading: true },
-    members: { count: 0, loading: true },
-    gallery: { count: 0, loading: true },
-    messages: { count: 0, loading: true }
+    totalEvents: 0,
+    upcomingEvents: 0,
+    thisMonthEvents: 0,
+    totalRegistrations: 0,
+    loading: true
   });
   const [recentEvents, setRecentEvents] = useState([]);
-  const [loadingRecentEvents, setLoadingRecentEvents] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [dashboardError, setDashboardError] = useState(null);
 
   // Fetch dashboard data
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Events count
-        const { count: eventsCount, error: eventsError } = await supabase
-          .from(TABLES.EVENTS)
-          .select('*', { count: 'exact', head: true });
+        setLoading(true);
+        const today = new Date().toISOString().split('T')[0];
         
-        if (eventsError) throw eventsError;
+        const [totalEventsResult, upcomingEventsResult, recentEventsResult] = await Promise.all([
+          supabase.from(TABLES.EVENTS).select('*', { count: 'exact', head: true }),
+          supabase.from(TABLES.EVENTS).select('*', { count: 'exact', head: true })
+            .gte('event_date', today).eq('status', 'upcoming'),
+          supabase.from(TABLES.EVENTS).select('*')
+            .order('created_at', { ascending: false }).limit(5)
+        ]);
         
-        // Members count
-        const { count: membersCount, error: membersError } = await supabase
-          .from(TABLES.MEMBERS)
-          .select('*', { count: 'exact', head: true });
-        
-        if (membersError) throw membersError;
-        
-        // Gallery count
-        const { count: galleryCount, error: galleryError } = await supabase
-          .from(TABLES.GALLERY)
-          .select('*', { count: 'exact', head: true });
-        
-        if (galleryError) throw galleryError;
-        
-        // Contact messages count
-        const { count: messagesCount, error: messagesError } = await supabase
-          .from(TABLES.CONTACT_MESSAGES)
-          .select('*', { count: 'exact', head: true });
-        
-        if (messagesError) throw messagesError;
-        
-        // Update stats
         setStats({
-          events: { count: eventsCount || 0, loading: false },
-          members: { count: membersCount || 0, loading: false },
-          gallery: { count: galleryCount || 0, loading: false },
-          messages: { count: messagesCount || 0, loading: false }
+          totalEvents: totalEventsResult?.count || 0,
+          upcomingEvents: upcomingEventsResult?.count || 0,
+          thisMonthEvents: 0,
+          totalRegistrations: 0,
+          loading: false
         });
+        
+        setRecentEvents(recentEventsResult?.data || []);
+        
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
         setDashboardError('Failed to load dashboard statistics');
-      }
-    };
-    
-    const fetchRecentEvents = async () => {
-      try {
-        setLoadingRecentEvents(true);
-        
-        const { data, error } = await supabase
-          .from(TABLES.EVENTS)
-          .select('*')
-          .order('event_date', { ascending: false })
-          .limit(3);
-        
-        if (error) throw error;
-        
-        setRecentEvents(data || []);
-        setLoadingRecentEvents(false);
-      } catch (error) {
-        console.error('Error fetching recent events:', error);
-        setLoadingRecentEvents(false);
+        setStats({
+          totalEvents: 0,
+          upcomingEvents: 0,
+          thisMonthEvents: 0,
+          totalRegistrations: 0,
+          loading: false
+        });
+      } finally {
+        setLoading(false);
       }
     };
     
     fetchDashboardData();
-    fetchRecentEvents();
   }, []);
 
   // Format date for display
@@ -105,7 +80,7 @@ const AdminDashboard = () => {
       icon: Calendar,
       link: '/admin/events',
       color: 'bg-blue-100 text-blue-600',
-      count: stats.events.count
+      count: stats?.totalEvents || 0
     },
     {
       id: 'members',
@@ -114,7 +89,7 @@ const AdminDashboard = () => {
       icon: Users,
       link: '/admin/members',
       color: 'bg-green-100 text-green-600',
-      count: stats.members.count
+      count: 0
     },
     {
       id: 'carousel',
@@ -123,7 +98,7 @@ const AdminDashboard = () => {
       icon: Image,
       link: '/admin/carousel',
       color: 'bg-amber-100 text-amber-600',
-      count: stats.gallery.count
+      count: 0
     },
     {
       id: 'content',
@@ -185,63 +160,63 @@ const AdminDashboard = () => {
         
         {/* Quick Stats - Mobile Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {/* Events Stat */}
+          {/* Total Events */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center mb-2">
               <div className="rounded-full p-2 bg-blue-100 mr-3">
                 <Calendar className="h-4 w-4 text-blue-600" />
               </div>
-              <p className="text-sm font-medium text-gray-500">Events</p>
+              <p className="text-sm font-medium text-gray-500">Total Events</p>
             </div>
-            {stats.events.loading ? (
+            {loading ? (
               <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-xl font-bold text-gray-900">{stats.events.count}</p>
+              <p className="text-xl font-bold text-gray-900">{stats.totalEvents}</p>
             )}
           </div>
           
-          {/* Members Stat */}
+          {/* Upcoming Events */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center mb-2">
               <div className="rounded-full p-2 bg-green-100 mr-3">
-                <Users className="h-4 w-4 text-green-600" />
+                <Activity className="h-4 w-4 text-green-600" />
               </div>
-              <p className="text-sm font-medium text-gray-500">Members</p>
+              <p className="text-sm font-medium text-gray-500">Upcoming</p>
             </div>
-            {stats.members.loading ? (
+            {loading ? (
               <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-xl font-bold text-gray-900">{stats.members.count}</p>
+              <p className="text-xl font-bold text-gray-900">{stats.upcomingEvents}</p>
             )}
           </div>
           
-          {/* Gallery Stat */}
+          {/* This Month */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center mb-2">
               <div className="rounded-full p-2 bg-amber-100 mr-3">
-                <Image className="h-4 w-4 text-amber-600" />
+                <BarChart2 className="h-4 w-4 text-amber-600" />
               </div>
-              <p className="text-sm font-medium text-gray-500">Images</p>
+              <p className="text-sm font-medium text-gray-500">This Month</p>
             </div>
-            {stats.gallery.loading ? (
+            {loading ? (
               <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-xl font-bold text-gray-900">{stats.gallery.count}</p>
+              <p className="text-xl font-bold text-gray-900">{stats.thisMonthEvents}</p>
             )}
           </div>
           
-          {/* Messages Stat */}
+          {/* Registrations */}
           <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
             <div className="flex items-center mb-2">
               <div className="rounded-full p-2 bg-purple-100 mr-3">
-                <MessageSquare className="h-4 w-4 text-purple-600" />
+                <Users className="h-4 w-4 text-purple-600" />
               </div>
-              <p className="text-sm font-medium text-gray-500">Messages</p>
+              <p className="text-sm font-medium text-gray-500">Registrations</p>
             </div>
-            {stats.messages.loading ? (
+            {loading ? (
               <div className="h-6 w-16 bg-gray-200 animate-pulse rounded"></div>
             ) : (
-              <p className="text-xl font-bold text-gray-900">{stats.messages.count}</p>
+              <p className="text-xl font-bold text-gray-900">{stats.totalRegistrations}</p>
             )}
           </div>
         </div>
@@ -257,7 +232,7 @@ const AdminDashboard = () => {
               </Link>
             </div>
             
-            {loadingRecentEvents ? (
+            {loading ? (
               <div className="p-4 flex justify-center">
                 <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#0077B5]"></div>
               </div>

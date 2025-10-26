@@ -260,7 +260,7 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen overflow-hidden flex items-center justify-center">
       {/* Background with IEEE SPS colors */}
-      <div className="absolute inset-0 bg-gradient-to-br from-ieee-green/90 via-teal-500/80 to-ieee-blue/90"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-500 via-secondary-400 to-primary-700"></div>
       
       {/* Full-screen canvas for signal animation */}
       <canvas 

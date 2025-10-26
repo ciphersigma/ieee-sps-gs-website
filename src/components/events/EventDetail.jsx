@@ -83,7 +83,13 @@ const EventDetail = ({ event, darkMode = false }) => {
         text: `Check out this event: ${event.title}`,
         url: window.location.href
       })
-      .catch(error => console.log('Error sharing:', error));
+      .catch(error => {
+        console.log('Error sharing:', error);
+        // Fallback to clipboard copy if native sharing fails
+        navigator.clipboard.writeText(window.location.href)
+          .then(() => alert('Link copied to clipboard!'))
+          .catch(() => alert('Unable to share or copy link'));
+      });
     } else {
       // Fallback
       navigator.clipboard.writeText(window.location.href)
@@ -92,6 +98,7 @@ const EventDetail = ({ event, darkMode = false }) => {
         })
         .catch(err => {
           console.error('Failed to copy: ', err);
+          alert('Failed to copy link. Please copy manually.');
         });
     }
   };
@@ -200,7 +207,7 @@ const EventDetail = ({ event, darkMode = false }) => {
             </h2>
             
             <div className={`prose max-w-none ${darkMode ? 'prose-invert' : ''}`}>
-              {event.description ? (
+              {event.description && typeof event.description === 'string' ? (
                 <div dangerouslySetInnerHTML={{ __html: event.description.replace(/\n/g, '<br>') }} />
               ) : (
                 <p className="text-gray-500 italic">No description available.</p>

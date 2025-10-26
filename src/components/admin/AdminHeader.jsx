@@ -99,12 +99,10 @@ const AdminHeader = ({ user, onLogout }) => {
         <div className="flex justify-between h-16 items-center">
           {/* Logo and Admin Badge - Fixed width to prevent overlap */}
           <div className="flex-shrink-0 w-48 flex items-center">
-            <Link to="/admin" className="flex items-center">
-              <Logo size="sm" />
-              <div className="ml-3 px-2 py-1 bg-red-600 text-white text-xs font-bold rounded">
-                ADMIN
-              </div>
-            </Link>
+            <Logo size="sm" />
+            <div className="ml-3 px-2 py-1 bg-red-600 text-white text-xs font-bold rounded">
+              ADMIN
+            </div>
           </div>
           
           {/* Search (Desktop) - With proper spacing */}

@@ -107,7 +107,7 @@ const TeamSection = () => {
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
             Our Executive Committee
-            <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+            <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Meet the dedicated professionals leading the IEEE Signal Processing Society Gujarat Chapter
@@ -117,7 +117,7 @@ const TeamSection = () => {
         {/* Loading State */}
         {loading && (
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ieee-green"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
           </div>
         )}
         
@@ -158,9 +158,9 @@ const TeamSection = () => {
                 </div>
                 
                 {/* Member Info */}
-                <div className="p-4 border-t-4 border-ieee-green">
+                <div className="p-4 border-t-4 border-primary-500">
                   <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-                  <p className="text-ieee-blue font-medium text-sm mb-2">{member.position}</p>
+                  <p className="text-primary-600 font-medium text-sm mb-2">{member.position}</p>
                   
                   {member.affiliation && (
                     <p className="text-xs text-gray-600 mb-3 line-clamp-2">{member.affiliation}</p>
@@ -171,7 +171,7 @@ const TeamSection = () => {
                     {member.email && (
                       <a 
                         href={`mailto:${member.email}`} 
-                        className="text-gray-500 hover:text-ieee-green transition-colors"
+                        className="text-gray-500 hover:text-primary-500 transition-colors"
                         aria-label={`Email ${member.name}`}
                       >
                         <Mail className="h-4 w-4" />
@@ -183,7 +183,7 @@ const TeamSection = () => {
                         href={member.linkedin} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-gray-500 hover:text-ieee-green transition-colors"
+                        className="text-gray-500 hover:text-primary-500 transition-colors"
                         aria-label={`LinkedIn profile of ${member.name}`}
                       >
                         <Linkedin className="h-4 w-4" />
@@ -200,7 +200,7 @@ const TeamSection = () => {
         <div className="text-center mt-12">
           <Link 
             to="/committee" 
-            className="inline-flex items-center px-6 py-3 border-2 border-ieee-green text-ieee-green hover:bg-ieee-green hover:text-white rounded-md transition-colors font-medium"
+            className="inline-flex items-center px-6 py-3 border-2 border-primary-500 text-primary-500 hover:bg-primary-500 hover:text-white rounded-md transition-colors font-medium"
           >
             View Full Committee
           </Link>

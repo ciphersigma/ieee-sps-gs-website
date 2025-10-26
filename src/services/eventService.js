@@ -418,6 +418,7 @@ export const eventService = {
   },
 
   // Increment participant count
+  // Increment participant count
   incrementParticipantCount: async (eventId) => {
     try {
       const { data, error } = await supabase
@@ -435,6 +436,30 @@ export const eventService = {
     try {
       const { data, error } = await supabase
         .rpc('decrement_participants', { event_id: eventId });
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Update participant count manually (admin function)
+  updateParticipantCount: async (eventId, count) => {
+    try {
+      if (count < 0) {
+        throw new Error('Participant count cannot be negative');
+      }
+
+      const { data, error } = await supabase
+        .from(TABLES.EVENTS)
+        .update({ 
+          current_participants: count,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', eventId)
+        .select()
+        .single();
 
       if (error) throw error;
       return { data, error: null };
@@ -501,9 +526,14 @@ export const eventService = {
   // Register for event (if using internal registration)
   registerForEvent: async (eventId, memberData) => {
     try {
+      // Validate required member data
+      if (!memberData?.name || !memberData?.email) {
+        throw new Error('Name and email are required for registration');
+      }
+
       // Check if event exists and has available spots
       const { data: event, error: eventError } = await this.getEventById(eventId);
-      if (eventError) throw new Error(eventError);
+      if (eventError) throw new Error(`Failed to fetch event: ${eventError}`);
 
       if (!event) {
         throw new Error('Event not found');
@@ -630,6 +660,256 @@ export const eventService = {
   },
 
   // ======================================================
+  // ADMIN FUNCTIONS
+  // ======================================================
+
+  // Get all events for admin (includes all statuses and detailed info)
+  getEventsForAdmin: async (options = {}) => {
+    try {
+      const {
+        page = 1,
+        limit = 20,
+        status = null,
+        eventType = null,
+        sortBy = 'created_at',
+        sortOrder = 'desc',
+        search = null,
+        dateFrom = null,
+        dateTo = null
+      } = options;
+
+      let query = supabase
+        .from(TABLES.EVENTS)
+        .select(`
+          *,
+          event_registrations(count)
+        `, { count: 'exact' });
+
+      // Apply filters
+      if (status) query = query.eq('status', status);
+      if (eventType) query = query.eq('event_type', eventType);
+      if (search) {
+        query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%,location.ilike.%${search}%`);
+      }
+      if (dateFrom) query = query.gte('event_date', dateFrom);
+      if (dateTo) query = query.lte('event_date', dateTo);
+
+      // Apply sorting
+      query = query.order(sortBy, { ascending: sortOrder === 'asc' });
+
+      // Apply pagination
+      const from = (page - 1) * limit;
+      const to = from + limit - 1;
+      query = query.range(from, to);
+
+      const { data, error, count } = await query;
+      if (error) throw error;
+
+      return {
+        data,
+        error: null,
+        pagination: {
+          page,
+          limit,
+          total: count,
+          totalPages: Math.ceil(count / limit),
+          hasMore: to < count - 1
+        }
+      };
+    } catch (error) {
+      return { data: null, error: error.message, pagination: null };
+    }
+  },
+
+  // Bulk update event status
+  bulkUpdateEventStatus: async (eventIds, status) => {
+    try {
+      const validStatuses = ['upcoming', 'ongoing', 'completed', 'cancelled'];
+      if (!validStatuses.includes(status)) {
+        throw new Error('Invalid status');
+      }
+
+      const { data, error } = await supabase
+        .from(TABLES.EVENTS)
+        .update({ 
+          status,
+          updated_at: new Date().toISOString()
+        })
+        .in('id', eventIds)
+        .select();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Bulk delete events
+  bulkDeleteEvents: async (eventIds) => {
+    try {
+      // Get events to delete their posters
+      const { data: events, error: fetchError } = await supabase
+        .from(TABLES.EVENTS)
+        .select('image_url')
+        .in('id', eventIds);
+
+      if (fetchError) throw fetchError;
+
+      // Delete posters from storage
+      for (const event of events) {
+        if (event.image_url) {
+          await deleteEventPoster(event.image_url);
+        }
+      }
+
+      // Delete events from database
+      const { data, error } = await supabase
+        .from(TABLES.EVENTS)
+        .delete()
+        .in('id', eventIds)
+        .select();
+
+      if (error) throw error;
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Get admin dashboard stats
+  getAdminDashboardStats: async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const thisMonth = new Date().toISOString().slice(0, 7);
+
+      // Get various counts
+      const [totalEvents, upcomingEvents, thisMonthEvents, featuredEvents, registrations] = await Promise.all([
+        supabase.from(TABLES.EVENTS).select('*', { count: 'exact', head: true }),
+        supabase.from(TABLES.EVENTS).select('*', { count: 'exact', head: true })
+          .gte('event_date', today).eq('status', 'upcoming'),
+        supabase.from(TABLES.EVENTS).select('*', { count: 'exact', head: true })
+          .gte('event_date', thisMonth + '-01').lt('event_date', thisMonth + '-32'),
+        supabase.from(TABLES.EVENTS).select('*', { count: 'exact', head: true })
+          .eq('is_featured', true),
+        supabase.from('event_registrations').select('*', { count: 'exact', head: true })
+      ]);
+
+      // Get recent events
+      const { data: recentEvents } = await supabase
+        .from(TABLES.EVENTS)
+        .select('id, title, event_date, status, current_participants')
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      return {
+        data: {
+          totalEvents: totalEvents.count || 0,
+          upcomingEvents: upcomingEvents.count || 0,
+          thisMonthEvents: thisMonthEvents.count || 0,
+          featuredEvents: featuredEvents.count || 0,
+          totalRegistrations: registrations.count || 0,
+          recentEvents: recentEvents || []
+        },
+        error: null
+      };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Get event analytics
+  getEventAnalytics: async (eventId) => {
+    try {
+      const { data: event, error: eventError } = await this.getEventById(eventId);
+      if (eventError) throw eventError;
+
+      const { data: registrations, error: regError } = await supabase
+        .from('event_registrations')
+        .select('*')
+        .eq('event_id', eventId);
+
+      if (regError) throw regError;
+
+      // Calculate analytics
+      const analytics = {
+        totalRegistrations: registrations.length,
+        registrationRate: event.max_participants 
+          ? (registrations.length / event.max_participants * 100).toFixed(1)
+          : null,
+        dailyRegistrations: {},
+        organizationBreakdown: {},
+        registrationTrend: []
+      };
+
+      // Group registrations by date
+      registrations.forEach(reg => {
+        const date = reg.registration_date.split('T')[0];
+        analytics.dailyRegistrations[date] = (analytics.dailyRegistrations[date] || 0) + 1;
+        
+        if (reg.organization) {
+          analytics.organizationBreakdown[reg.organization] = 
+            (analytics.organizationBreakdown[reg.organization] || 0) + 1;
+        }
+      });
+
+      return { data: { event, analytics }, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Export events data
+  exportEventsData: async (filters = {}) => {
+    try {
+      let query = supabase
+        .from(TABLES.EVENTS)
+        .select(`
+          *,
+          event_registrations(*)
+        `);
+
+      // Apply filters
+      if (filters.status) query = query.eq('status', filters.status);
+      if (filters.eventType) query = query.eq('event_type', filters.eventType);
+      if (filters.dateFrom) query = query.gte('event_date', filters.dateFrom);
+      if (filters.dateTo) query = query.lte('event_date', filters.dateTo);
+
+      const { data, error } = await query.order('event_date', { ascending: false });
+      if (error) throw error;
+
+      return { data, error: null };
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // Duplicate event
+  duplicateEvent: async (eventId, updates = {}) => {
+    try {
+      const { data: originalEvent, error: fetchError } = await this.getEventById(eventId);
+      if (fetchError) throw fetchError;
+
+      // Remove fields that shouldn't be duplicated
+      const { id, created_at, updated_at, current_participants, ...eventData } = originalEvent;
+      
+      // Apply updates and set new defaults
+      const newEventData = {
+        ...eventData,
+        ...updates,
+        title: updates.title || `${eventData.title} (Copy)`,
+        status: 'upcoming',
+        current_participants: 0,
+        is_featured: false
+      };
+
+      return await this.createEvent(newEventData);
+    } catch (error) {
+      return { data: null, error: error.message };
+    }
+  },
+
+  // ======================================================
   // UTILITY FUNCTIONS
   // ======================================================
 
@@ -717,6 +997,18 @@ export const {
   getEventRegistrations,
   getEventStats,
   getEventsByMonth,
+  // Admin functions
+  getEventsForAdmin,
+  bulkUpdateEventStatus,
+  bulkDeleteEvents,
+  getAdminDashboardStats,
+  getEventAnalytics,
+  exportEventsData,
+  duplicateEvent,
+  updateParticipantCount,
+  incrementParticipantCount,
+  decrementParticipantCount,
+  // Utility functions
   isRegistrationOpen,
   isEventFull,
   getTimeUntilEvent,

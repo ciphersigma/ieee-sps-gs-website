@@ -112,9 +112,9 @@ const ImageCarousel = () => {
                     alt={image.alt_text || "IEEE SPS Gujarat"} 
                     className="w-full h-full object-contain bg-white"
                   />
-                  {/* Caption overlay with IEEE green theme */}
+                  {/* Caption overlay with IEEE blue theme */}
                   {image.caption && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[rgba(0,128,0,0.7)] to-transparent text-white p-3">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-[rgba(37,99,235,0.7)] to-transparent text-white p-3">
                       <p className="text-sm font-medium">{image.caption}</p>
                     </div>
                   )}
@@ -123,25 +123,25 @@ const ImageCarousel = () => {
             </div>
           </div>
           
-          {/* Navigation buttons - styled to match green theme */}
+          {/* Navigation buttons - styled to match blue theme */}
           {images.length > 1 && (
             <>
               <button
                 onClick={prevSlide}
-                className="absolute left-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full bg-white/70 hover:bg-white text-green-700 shadow-sm z-10 transition-colors"
+                className="absolute left-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full bg-white/70 hover:bg-white text-blue-700 shadow-sm z-10 transition-colors"
                 aria-label="Previous slide"
               >
                 <ChevronLeft size={20} />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full bg-white/70 hover:bg-white text-green-700 shadow-sm z-10 transition-colors"
+                className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-full bg-white/70 hover:bg-white text-blue-700 shadow-sm z-10 transition-colors"
                 aria-label="Next slide"
               >
                 <ChevronRight size={20} />
               </button>
               
-              {/* Dots indicator - styled with green theme */}
+              {/* Dots indicator - styled with blue theme */}
               <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-1.5 z-10">
                 {images.map((_, index) => (
                   <button
@@ -149,7 +149,7 @@ const ImageCarousel = () => {
                     onClick={() => setCurrentSlide(index)}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       index === currentSlide 
-                        ? 'bg-green-600' 
+                        ? 'bg-blue-600' 
                         : 'bg-white/70 hover:bg-white/90'
                     }`}
                     aria-label={`Go to slide ${index + 1}`}

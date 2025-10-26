@@ -223,12 +223,12 @@ const CommitteePage = () => {
       </div>
       
       {/* Green line under photo matching your design */}
-      <div className="h-1 w-full bg-ieee-green"></div>
+      <div className="h-1 w-full bg-primary-500"></div>
       
       {/* Member Info */}
       <div className="p-4">
         <h3 className="text-lg font-bold text-gray-900 mb-1">{member.name}</h3>
-        <p className="text-ieee-green font-medium text-sm mb-2">{member.position}</p>
+        <p className="text-primary-500 font-medium text-sm mb-2">{member.position}</p>
         
         {member.affiliation && (
           <p className="text-xs text-gray-600 mb-3 line-clamp-2">{member.affiliation}</p>
@@ -239,7 +239,7 @@ const CommitteePage = () => {
           {member.email && (
             <a 
               href={`mailto:${member.email}`} 
-              className="text-gray-500 hover:text-ieee-green transition-colors"
+              className="text-gray-500 hover:text-primary-500 transition-colors"
               aria-label={`Email ${member.name}`}
             >
               <Mail className="h-4 w-4" />
@@ -251,7 +251,7 @@ const CommitteePage = () => {
               href={member.linkedin} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-gray-500 hover:text-ieee-green transition-colors"
+              className="text-gray-500 hover:text-primary-500 transition-colors"
               aria-label={`LinkedIn profile of ${member.name}`}
             >
               <Linkedin className="h-4 w-4" />
@@ -265,7 +265,7 @@ const CommitteePage = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Hero Section - Exactly matching your second image with grid pattern and signal wave */}
-      <section className="bg-gradient-to-r from-ieee-green to-blue-600 text-white py-16 relative overflow-hidden">
+      <section className="bg-gradient-to-r from-primary-500 to-blue-600 text-white py-16 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0" style={{
             backgroundImage: 'linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px)',
@@ -302,7 +302,7 @@ const CommitteePage = () => {
           <div className="mb-10">
             <Link 
               to="/" 
-              className="inline-flex items-center text-ieee-green hover:text-green-700 transition-colors"
+              className="inline-flex items-center text-primary-500 hover:text-green-700 transition-colors"
             >
               <ArrowLeft className="h-5 w-5 mr-2" />
               <span>Back to Home</span>
@@ -312,7 +312,7 @@ const CommitteePage = () => {
           {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center py-8">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ieee-green"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-500"></div>
             </div>
           )}
           

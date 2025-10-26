@@ -7,7 +7,9 @@ import AdminLayout from './components/layout/AdminLayout';
 import MainLayout from './components/layout/MainLayout';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
+import EventDetailPage from './pages/EventDetailPage'; // NEW: Import EventDetailPage
 import AboutPage from './pages/AboutPage';
+import ResearchPage from './pages/ResearchPage';
 import CommitteePage from './pages/CommitteePage';
 import LoginPage from './pages/admin/LoginPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
@@ -19,7 +21,8 @@ import ContentForm from './pages/admin/ContentForm';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage'; 
 import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
-import CarouselManager from './pages/admin/CarouselManager'; // Import the new component
+import CarouselManager from './pages/admin/CarouselManager';
+import PlaceholderPage from './components/common/PlaceholderPage';
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -54,10 +57,24 @@ const App = () => {
               </MainLayout>
             } />
             
+            {/* NEW: Event Detail Page Route */}
+            <Route path="/events/:id" element={
+              <MainLayout>
+                <EventDetailPage />
+              </MainLayout>
+            } />
+            
             {/* About Us route */}
             <Route path="/about" element={
               <MainLayout>
                 <AboutPage />
+              </MainLayout>
+            } />
+            
+            {/* Research route */}
+            <Route path="/research" element={
+              <MainLayout>
+                <ResearchPage />
               </MainLayout>
             } />
             
@@ -94,73 +111,14 @@ const App = () => {
                 <CommitteePage />
               </MainLayout>
             } />
-            <Route path="/committee/past" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Past Committee</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/committee/former-chair" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Former Chair</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-
-
-            {/* Routes for additional sections in the navigation bar */}
-            <Route path="/opportunities/*" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Opportunities</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/student/*" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Student Corner</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/awards" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Awards</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/newsletter" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Newsletter</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/gallery" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Photo Gallery</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/join" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Join IEEE SPS Gujarat</h1>
-                  <p>Membership information coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
+            <Route path="/committee/past" element={<MainLayout><PlaceholderPage title="Past Committee" /></MainLayout>} />
+            <Route path="/committee/former-chair" element={<MainLayout><PlaceholderPage title="Former Chair" /></MainLayout>} />
+            <Route path="/opportunities/*" element={<MainLayout><PlaceholderPage title="Opportunities" /></MainLayout>} />
+            <Route path="/student/*" element={<MainLayout><PlaceholderPage title="Student Corner" /></MainLayout>} />
+            <Route path="/awards" element={<MainLayout><PlaceholderPage title="Awards" /></MainLayout>} />
+            <Route path="/newsletter" element={<MainLayout><PlaceholderPage title="Newsletter" /></MainLayout>} />
+            <Route path="/gallery" element={<MainLayout><PlaceholderPage title="Photo Gallery" /></MainLayout>} />
+            <Route path="/join" element={<MainLayout><PlaceholderPage title="Join IEEE SPS Gujarat" description="Membership information coming soon..." /></MainLayout>} />
             {/* Contact Page route */}
             <Route path="/contact" element={
               <MainLayout>

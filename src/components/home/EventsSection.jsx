@@ -45,7 +45,7 @@ const EventsSection = () => {
   const getEventTypeColor = (type) => {
     switch (type) {
       case 'Workshop':
-        return 'bg-blue-100 text-ieee-blue';
+        return 'bg-blue-100 text-primary-600';
       case 'Lecture':
         return 'bg-purple-100 text-purple-800';
       case 'Conference':
@@ -73,7 +73,7 @@ const EventsSection = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
               Upcoming Events
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               Loading events...
@@ -106,7 +106,7 @@ const EventsSection = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
               Upcoming Events
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
             </h2>
             <p className="text-xl text-red-600 max-w-3xl mx-auto">
               {error}
@@ -125,14 +125,14 @@ const EventsSection = () => {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
               Upcoming Events
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
               No upcoming events scheduled at the moment. Check back soon!
             </p>
           </div>
           <div className="text-center">
-            <Link to="/events" className="inline-flex items-center px-5 py-2 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors">
+            <Link to="/events" className="inline-flex items-center px-5 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors">
               <span className="mr-2">View Past Events</span>
               <ArrowRight size={18} />
             </Link>
@@ -149,7 +149,7 @@ const EventsSection = () => {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
               Upcoming Events
-              <span className="absolute bottom-0 left-0 w-full h-1 bg-ieee-green transform translate-y-2"></span>
+              <span className="absolute bottom-0 left-0 w-full h-1 bg-primary-500 transform translate-y-2"></span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl">
               Join us for workshops, lectures, and competitions to advance your knowledge in signal processing
@@ -157,7 +157,7 @@ const EventsSection = () => {
           </div>
           <Link 
             to="/events" 
-            className="mt-6 md:mt-0 inline-flex items-center text-ieee-green hover:text-primary-600 font-medium transition-colors"
+            className="mt-6 md:mt-0 inline-flex items-center text-primary-500 hover:text-primary-600 font-medium transition-colors"
           >
             <span>View All Events</span>
             <ArrowRight className="ml-2 h-4 w-4" />
@@ -169,7 +169,7 @@ const EventsSection = () => {
             <div 
               key={event.id} 
               className={`bg-white rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg hover:translate-y-[-4px] ${
-                event.featured ? 'ring-2 ring-ieee-green' : ''
+                event.featured ? 'ring-2 ring-primary-500' : ''
               }`}
             >
               {/* Event image (optional) */}
@@ -177,7 +177,7 @@ const EventsSection = () => {
                 {event.image ? (
                   <img src={event.image} alt={event.title} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="h-full w-full bg-gradient-to-r from-ieee-blue to-ieee-green flex items-center justify-center">
+                  <div className="h-full w-full bg-gradient-to-r from-primary-600 to-primary-500 flex items-center justify-center">
                     <span className="text-white font-medium text-lg">{event.type || 'Event'}</span>
                   </div>
                 )}
@@ -194,7 +194,7 @@ const EventsSection = () => {
                 {/* Featured Badge */}
                 {event.featured && (
                   <div className="absolute top-4 left-4">
-                    <span className="px-3 py-1 bg-ieee-green text-white rounded-full text-xs font-medium">
+                    <span className="px-3 py-1 bg-primary-500 text-white rounded-full text-xs font-medium">
                       Featured
                     </span>
                   </div>
@@ -202,7 +202,7 @@ const EventsSection = () => {
               </div>
               
               <div className="p-6">
-                <div className="flex items-center space-x-2 text-sm text-ieee-blue mb-3">
+                <div className="flex items-center space-x-2 text-sm text-primary-600 mb-3">
                   <Calendar size={16} className="flex-shrink-0" />
                   <span>{formatDate(event.date)}</span>
                 </div>
@@ -227,7 +227,7 @@ const EventsSection = () => {
                 
                 <Link 
                   to={`/events/${event.id}`} 
-                  className="w-full py-2 bg-ieee-blue text-white rounded-md hover:bg-secondary-600 transition-colors inline-block text-center"
+                  className="w-full py-2 bg-primary-600 text-white rounded-md hover:bg-secondary-600 transition-colors inline-block text-center"
                 >
                   Learn More
                 </Link>
@@ -239,7 +239,7 @@ const EventsSection = () => {
         <div className="text-center mt-12">
           <Link 
             to="/events" 
-            className="inline-flex items-center px-6 py-3 bg-ieee-green text-white rounded-md hover:bg-primary-600 transition-colors"
+            className="inline-flex items-center px-6 py-3 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-colors"
           >
             <span className="mr-2">View All Events</span>
             <ArrowRight size={18} />
