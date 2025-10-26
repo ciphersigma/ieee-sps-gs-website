@@ -14,14 +14,10 @@ import LoginPage from './pages/admin/LoginPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage'; 
 import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
-<<<<<<< HEAD
 
 // Import AdminRoutes component
 import AdminRoutes from './routes/AdminRoutes';
-=======
-import CarouselManager from './pages/admin/CarouselManager';
 import PlaceholderPage from './components/common/PlaceholderPage';
->>>>>>> test
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -111,83 +107,16 @@ const App = () => {
                 <CommitteePage />
               </MainLayout>
             } />
-<<<<<<< HEAD
-            <Route path="/committee/past" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Past Committee</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/committee/former-chair" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Former Chair</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-
-            {/* Routes for additional sections in the navigation bar */}
-            <Route path="/opportunities/*" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Opportunities</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/student/*" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Student Corner</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/awards" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Awards</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/newsletter" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Newsletter</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/gallery" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Photo Gallery</h1>
-                  <p>Content coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-            <Route path="/join" element={
-              <MainLayout>
-                <div className="container mx-auto py-12 px-4">
-                  <h1 className="text-3xl font-bold mb-8">Join IEEE SPS Gujarat</h1>
-                  <p>Membership information coming soon...</p>
-                </div>
-              </MainLayout>
-            } />
-=======
             <Route path="/committee/past" element={<MainLayout><PlaceholderPage title="Past Committee" /></MainLayout>} />
             <Route path="/committee/former-chair" element={<MainLayout><PlaceholderPage title="Former Chair" /></MainLayout>} />
+            
+            {/* Routes for additional sections in the navigation bar */}
             <Route path="/opportunities/*" element={<MainLayout><PlaceholderPage title="Opportunities" /></MainLayout>} />
             <Route path="/student/*" element={<MainLayout><PlaceholderPage title="Student Corner" /></MainLayout>} />
             <Route path="/awards" element={<MainLayout><PlaceholderPage title="Awards" /></MainLayout>} />
             <Route path="/newsletter" element={<MainLayout><PlaceholderPage title="Newsletter" /></MainLayout>} />
             <Route path="/gallery" element={<MainLayout><PlaceholderPage title="Photo Gallery" /></MainLayout>} />
             <Route path="/join" element={<MainLayout><PlaceholderPage title="Join IEEE SPS Gujarat" description="Membership information coming soon..." /></MainLayout>} />
->>>>>>> test
             {/* Contact Page route */}
             <Route path="/contact" element={
               <MainLayout>
