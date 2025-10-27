@@ -11,12 +11,14 @@ build/
 # Environment variables
 .env
 .env.local
-.env.production
 .env.development
 */.env
 */.env.local
-*/.env.production
 */.env.development
+
+# Allow production env files for deployment
+!.env.production
+!*/.env.production
 
 # Logs
 logs
