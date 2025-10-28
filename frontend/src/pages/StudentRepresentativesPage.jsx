@@ -94,7 +94,7 @@ const StudentRepresentativesPage = () => {
       id: 10,
       name: "Tanisha Agarwal",
       position: "Student Representative",
-      affiliation: "Ahmedabad University",
+      affiliation: "SCET, Surat",
       email: "tanisha.agarwal@ieeesps.org",
       image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Tanisha_Agarwal_fvijk3.jpg`,
       linkedin: "https://linkedin.com/in/tanishaagarwal",
