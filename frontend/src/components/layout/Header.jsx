@@ -53,14 +53,12 @@ const Header = () => {
 
   // Handle menu animation timing
   useEffect(() => {
-    let timeoutId;
     if (hamburgerOpen) {
-      // Small delay to ensure the menu is in the DOM before animating
-      timeoutId = setTimeout(() => {
+      // Use requestAnimationFrame for smoother animation
+      requestAnimationFrame(() => {
         setMenuVisible(true);
-      }, 10);
+      });
     }
-    return () => clearTimeout(timeoutId);
   }, [hamburgerOpen]);
 
   // Close menu when clicking outside
@@ -107,7 +105,7 @@ const Header = () => {
     setTimeout(() => {
       setHamburgerOpen(false);
       document.body.classList.remove('menu-open');
-    }, 400); // Increased duration for smoother exit
+    }, 300); // Optimized duration
   };
 
   // Toggle dropdown in hamburger menu with staggered animation for child items
@@ -134,6 +132,7 @@ const Header = () => {
     { name: 'Events', href: '/events', icon: Calendar },
     { name: 'About', href: '/about', icon: BookOpen },
     { name: 'Research', href: '/research', icon: BookOpen },
+    { name: 'News', href: '/news', icon: FileText },
     { name: 'Contact', href: '/contact', icon: Mail }
   ];
 
@@ -170,9 +169,9 @@ const Header = () => {
       key: 'opportunities',
       icon: Briefcase,
       items: [
-        { name: 'Jobs', href: '/opportunities/jobs' },
-        { name: 'Internships', href: '/opportunities/internships' },
-        { name: 'Research Collaborations', href: '/opportunities/research' }
+        { name: 'Conference Grant Scheme', href: '/opportunities/conference-grant' },
+        { name: 'Scholarships, Grants & Fellowships', href: '/opportunities/scholarships' },
+        { name: 'Student Travel Grants', href: '/opportunities/student-travel-grants' }
       ]
     },
     {
@@ -203,7 +202,7 @@ const Header = () => {
   // Hamburger menu component as a separate component that will be rendered using createPortal
   const HamburgerMenu = () => (
     <div 
-      className="fixed inset-0 transition-all duration-500 ease-in-out"
+      className="fixed inset-0 transition-all duration-300 ease-out"
       style={{ 
         zIndex: 99999,
         opacity: menuVisible ? 1 : 0,
@@ -212,9 +211,9 @@ const Header = () => {
     >
       {/* Backdrop with blur effect for modern look */}
       <div 
-        className="absolute inset-0 bg-black transition-all duration-500 ease-in-out backdrop-blur-sm"
+        className="absolute inset-0 bg-black transition-opacity duration-300 ease-out backdrop-blur-sm"
         style={{ 
-          opacity: menuVisible ? 0.5 : 0,
+          opacity: menuVisible ? 0.4 : 0,
         }}
         onClick={closeHamburgerMenu}
       ></div>
@@ -222,55 +221,40 @@ const Header = () => {
       {/* Menu Panel with smooth sliding animation */}
       <div 
         ref={menuRef}
-        className="absolute top-0 right-0 w-full max-w-sm sm:max-w-md h-full bg-white shadow-2xl overflow-y-auto transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="absolute top-0 right-0 w-full max-w-sm sm:max-w-md h-full bg-gradient-to-b from-white to-gray-50 shadow-2xl overflow-y-auto transition-transform duration-300 ease-out border-l border-gray-100"
         style={{ 
           transform: menuVisible ? 'translateX(0)' : 'translateX(100%)',
-          opacity: menuVisible ? 1 : 0.5,
-          boxShadow: menuVisible ? '-10px 0 30px rgba(0, 0, 0, 0.1)' : 'none',
         }}
       >
-        {/* Menu Header with subtle animation */}
-        <div 
-          className="flex items-center justify-between p-4 border-b border-gray-200"
-          style={{
-            opacity: menuVisible ? 1 : 0,
-            transform: menuVisible ? 'translateY(0)' : 'translateY(-20px)',
-            transition: 'opacity 0.5s ease, transform 0.5s ease',
-            transitionDelay: '0.1s'
-          }}
-        >
+        {/* Menu Header */}
+        <div className="flex items-center justify-between p-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white">
           <div className="flex items-center">
             <img 
               src={ImgLogo}
               alt="IEEE SPS Gujarat Chapter" 
-              className="h-10 w-auto mr-2"
+              className="h-10 w-auto mr-3 filter brightness-0 invert"
             />
-            <h2 className="text-lg font-bold text-gray-900">IEEE SPS Gujarat</h2>
+            <div>
+              <h2 className="text-lg font-bold">IEEE SPS Gujarat</h2>
+              <p className="text-xs text-blue-100">Signal Processing Society</p>
+            </div>
           </div>
           <button
             onClick={closeHamburgerMenu}
-            className="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-full text-white hover:bg-white/20 transition-all duration-200"
             aria-label="Close menu"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5" />
           </button>
         </div>
         
-        {/* Menu Content with staggered animations for each section */}
-        <div className="py-4">
+        {/* Menu Content */}
+        <div className="py-6 px-2">
           {hamburgerSections.map((section, idx) => (
-            <div 
-              key={idx} 
-              className="mb-4"
-              style={{
-                opacity: menuVisible ? 1 : 0,
-                transform: menuVisible ? 'translateY(0)' : 'translateY(20px)',
-                transition: 'opacity 0.5s ease, transform 0.5s ease',
-                transitionDelay: `${0.1 + idx * 0.05}s`
-              }}
-            >
+            <div key={idx} className="mb-4">
               {section.title && (
-                <h3 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                <h3 className="px-4 text-xs font-bold text-gray-800 uppercase tracking-wider mb-3 flex items-center">
+                  <div className="w-2 h-2 bg-blue-600 rounded-full mr-2"></div>
                   {section.title}
                 </h3>
               )}
@@ -299,10 +283,9 @@ const Header = () => {
                     
                     {/* Dropdown Items with improved height animation and staggered children */}
                     <div 
-                      className="overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                      className="overflow-hidden transition-all duration-300 ease-out"
                       style={{ 
-                        maxHeight: dropdownOpen[section.key] ? `${section.items.length * 40 + 20}px` : '0',
-                        opacity: dropdownOpen[section.key] ? 1 : 0,
+                        maxHeight: dropdownOpen[section.key] ? `${section.items.length * 48}px` : '0',
                       }}
                     >
                       <div className="pl-10 pr-4 py-1 space-y-1">
@@ -316,12 +299,7 @@ const Header = () => {
                                 : 'text-gray-600 hover:text-primary-600'
                             }`}
                             onClick={closeHamburgerMenu}
-                            style={{
-                              opacity: dropdownOpen[section.key] ? 1 : 0,
-                              transform: dropdownOpen[section.key] ? 'translateX(0)' : 'translateX(-10px)',
-                              transition: 'opacity 0.3s ease, transform 0.3s ease',
-                              transitionDelay: `${0.1 + itemIdx * 0.05}s`
-                            }}
+
                           >
                             {item.name}
                           </Link>
@@ -340,12 +318,7 @@ const Header = () => {
                           : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
                       }`}
                       onClick={closeHamburgerMenu}
-                      style={{
-                        opacity: menuVisible ? 1 : 0,
-                        transform: menuVisible ? 'translateX(0)' : 'translateX(-10px)',
-                        transition: 'opacity 0.5s ease, transform 0.5s ease',
-                        transitionDelay: `${0.2 + idx * 0.05 + itemIdx * 0.03}s`
-                      }}
+
                     >
                       {item.icon && <item.icon className="mr-3 h-5 w-5" />}
                       <span>{item.name}</span>
@@ -357,25 +330,17 @@ const Header = () => {
           ))}
         </div>
         
-        {/* Menu Footer with button animation */}
-        <div 
-          className="border-t border-gray-200 p-4"
-          style={{
-            opacity: menuVisible ? 1 : 0,
-            transform: menuVisible ? 'translateY(0)' : 'translateY(20px)',
-            transition: 'opacity 0.5s ease, transform 0.5s ease',
-            transitionDelay: '0.3s'
-          }}
-        >
+        {/* Menu Footer */}
+        <div className="border-t border-gray-200 p-6 bg-white">
           <Link
             to="/join"
-            className="block w-full text-center py-2 px-4 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition-all duration-300 transform hover:scale-105 font-medium"
+            className="block w-full text-center py-3 px-6 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-200 transform hover:scale-105 font-medium shadow-lg"
             onClick={closeHamburgerMenu}
           >
             Join IEEE SPS Gujarat
           </Link>
           
-          <div className="mt-6 flex justify-center space-x-6">
+          <div className="mt-6 flex justify-center space-x-8">
             <a 
               href="https://linkedin.com/company/ieee-sps-gujarat" 
               target="_blank" 
@@ -425,82 +390,80 @@ const Header = () => {
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16 sm:h-20">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center">
+          <Link to="/" className="flex-shrink-0 flex items-center group">
             <img 
               src={ImgLogo}
               alt="IEEE SPS Gujarat Chapter" 
-              className="h-8 sm:h-10 lg:h-12 w-auto"
+              className="h-12 w-auto transition-transform duration-200 group-hover:scale-105"
             />
+            <div className="ml-3 hidden sm:block">
+              <div className="text-lg font-bold text-gray-900">IEEE SPS</div>
+              <div className="text-xs text-gray-600 -mt-1">Gujarat Chapter</div>
+            </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            {mainNavigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  isActive(item.href)
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
-            
-            {/* Committee Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('desktop-committee')}
-                className={`text-sm font-medium transition-colors duration-200 flex items-center ${
-                  isActive('/committee') || dropdownOpen['desktop-committee']
-                    ? 'text-primary-600'
-                    : 'text-gray-700 hover:text-primary-600'
-                }`}
-              >
-                Committee
-                <ChevronDown className={`ml-1 h-4 w-4 transition-transform duration-200 ${dropdownOpen['desktop-committee'] ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {dropdownOpen['desktop-committee'] && (
-                <div className="absolute z-[200] left-0 mt-2 w-56 bg-white rounded-lg shadow-lg py-2 border border-gray-100">
-                  {hamburgerSections.find(s => s.key === 'committee').items.map((item) => (
-                    <Link
-                      key={item.name}
-                      to={item.href}
-                      className={`block px-4 py-2 text-sm transition-colors duration-200 ${
-                        isActive(item.href)
-                          ? 'text-primary-600 bg-primary-50'
-                          : 'text-gray-700 hover:bg-gray-50 hover:text-primary-600'
-                      }`}
-                      onClick={() => toggleDropdown('desktop-committee')}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-            
+          <nav className="hidden md:flex items-center space-x-1">
+            {/* Navigation Pills */}
+            <Link
+              to="/"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                isActive('/')
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+              }`}
+            >
+              Home
+            </Link>
+            <Link
+              to="/about"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                isActive('/about')
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+              }`}
+            >
+              About
+            </Link>
+            <Link
+              to="/research"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                isActive('/research')
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+              }`}
+            >
+              Research
+            </Link>
+            <Link
+              to="/contact"
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                isActive('/contact')
+                  ? 'bg-blue-600 text-white shadow-md'
+                  : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
+              }`}
+            >
+              Contact
+            </Link>
+
+          </nav>
+
+          {/* Right side - Menu and Join button */}
+          <div className="flex items-center space-x-3">
             <Link
               to="/join"
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+              className="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105"
             >
               Join IEEE SPS
             </Link>
-          </nav>
-
-          {/* Mobile menu button */}
-          <div className="lg:hidden">
             <button
               onClick={openHamburgerMenu}
-              className="p-2 rounded-lg text-gray-600 hover:text-primary-600 hover:bg-gray-100 transition-colors"
+              className="p-3 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-200 shadow-sm hover:shadow-md"
               aria-label="Open menu"
             >
-              <Menu className="h-6 w-6" />
+              <Menu className="h-5 w-5" />
             </button>
           </div>
         </div>

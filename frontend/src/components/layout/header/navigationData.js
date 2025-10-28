@@ -43,9 +43,9 @@ export const hamburgerSections = [
     key: 'opportunities',
     icon: Briefcase,
     items: [
-      { name: 'Jobs', href: '/opportunities/jobs' },
-      { name: 'Internships', href: '/opportunities/internships' },
-      { name: 'Research Collaborations', href: '/opportunities/research' }
+      { name: 'Conference Grant Scheme', href: '/opportunities/conference-grant' },
+      { name: 'Scholarships, Grants & Fellowships', href: '/opportunities/scholarships' },
+      { name: 'Student Travel Grants', href: '/opportunities/student-travel-grants' }
     ]
   },
   {

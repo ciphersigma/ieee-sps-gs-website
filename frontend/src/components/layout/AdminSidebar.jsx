@@ -9,7 +9,8 @@ import {
   Image,
   Settings, 
   LogOut,
-  Users
+  Users,
+  Award
 } from 'lucide-react';
 
 const AdminSidebar = ({ isOpen, toggleSidebar }) => {
@@ -51,6 +52,11 @@ const AdminSidebar = ({ isOpen, toggleSidebar }) => {
           name: 'Content',
           icon: FileText,
           path: '/admin/content/blog'
+        },
+        {
+          name: 'Awards',
+          icon: Award,
+          path: '/admin/awards'
         },
         {
           name: 'Carousel',

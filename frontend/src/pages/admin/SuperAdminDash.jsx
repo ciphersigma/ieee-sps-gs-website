@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Calendar, Users, FileText, Settings, Building, Shield,
-  Image, BarChart3, Database, UserCog
+  Image, BarChart3, Database, UserCog, Award
 } from 'lucide-react';
 import { api } from '../../services/api';
 
@@ -82,6 +82,13 @@ const SuperAdminDash = () => {
       icon: FileText,
       link: '/admin/content/news',
       color: 'bg-orange-100 text-orange-600'
+    },
+    {
+      name: 'Awards Management',
+      description: 'Manage awards & recognition',
+      icon: Award,
+      link: '/admin/awards',
+      color: 'bg-yellow-100 text-yellow-600'
     },
     {
       name: 'Members Directory',

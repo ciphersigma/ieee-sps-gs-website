@@ -14,6 +14,14 @@ import LoginPage from './pages/admin/LoginPage';
 import ContactPage from './pages/ContactPage';
 import NotFoundPage from './pages/NotFoundPage'; 
 import StudentRepresentativesPage from "./pages/StudentRepresentativesPage";
+import ConferenceGrantPage from './pages/ConferenceGrantPage';
+import NewsPage from './pages/NewsPage';
+import NewsDetailPage from './pages/NewsDetailPage';
+import SitemapPage from './pages/SitemapPage';
+import ScholarshipsPage from './pages/ScholarshipsPage';
+import StudentTravelGrantsPage from './pages/StudentTravelGrantsPage';
+import AwardsPage from './pages/AwardsPage';
+import ScrollToTop from './components/common/ScrollToTop';
 import EasterEggs from './components/common/EasterEggs';
 
 // Import AdminRoutes component
@@ -41,6 +49,7 @@ const App = () => {
     <AuthProvider>
       <ThemeProvider>
         <Router>
+          <ScrollToTop />
           <EasterEggs />
           <Routes>
             {/* Public routes with MainLayout */}
@@ -113,12 +122,46 @@ const App = () => {
             <Route path="/committee/former-chair" element={<MainLayout><PlaceholderPage title="Former Chair" /></MainLayout>} />
             
             {/* Routes for additional sections in the navigation bar */}
+            <Route path="/opportunities/conference-grant" element={
+              <MainLayout>
+                <ConferenceGrantPage />
+              </MainLayout>
+            } />
+            <Route path="/opportunities/scholarships" element={
+              <MainLayout>
+                <ScholarshipsPage />
+              </MainLayout>
+            } />
+            <Route path="/opportunities/student-travel-grants" element={
+              <MainLayout>
+                <StudentTravelGrantsPage />
+              </MainLayout>
+            } />
             <Route path="/opportunities/*" element={<MainLayout><PlaceholderPage title="Opportunities" /></MainLayout>} />
             <Route path="/student/*" element={<MainLayout><PlaceholderPage title="Student Corner" /></MainLayout>} />
-            <Route path="/awards" element={<MainLayout><PlaceholderPage title="Awards" /></MainLayout>} />
+            <Route path="/awards" element={
+              <MainLayout>
+                <AwardsPage />
+              </MainLayout>
+            } />
+            <Route path="/news" element={
+              <MainLayout>
+                <NewsPage />
+              </MainLayout>
+            } />
+            <Route path="/news/:id" element={
+              <MainLayout>
+                <NewsDetailPage />
+              </MainLayout>
+            } />
             <Route path="/newsletter" element={<MainLayout><PlaceholderPage title="Newsletter" /></MainLayout>} />
             <Route path="/gallery" element={<MainLayout><PlaceholderPage title="Photo Gallery" /></MainLayout>} />
             <Route path="/join" element={<MainLayout><PlaceholderPage title="Join IEEE SPS Gujarat" description="Membership information coming soon..." /></MainLayout>} />
+            <Route path="/sitemap" element={
+              <MainLayout>
+                <SitemapPage />
+              </MainLayout>
+            } />
             {/* Contact Page route */}
             <Route path="/contact" element={
               <MainLayout>

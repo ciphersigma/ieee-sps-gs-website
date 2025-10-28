@@ -213,8 +213,10 @@ const AboutPage = () => {
                   About IEEE Signal Processing Society
                 </h2>
                 <p className="mb-6 text-gray-700">
-                  The IEEE Signal Processing Society is the world's premier association for signal processing engineers and industry professionals. 
-                  With over 17,000 members worldwide, the Society supports scientific and educational activities in the field of signal processing.
+                  The Signal Processing Society is a dynamic organization that is the preeminent source of signal processing information and resources to a global community. We do this by: being a one-stop source of signal processing resources; providing a variety of high quality resources to a variety of users in formats customized to their interests; adapting to a rapidly changing technical community; and being intimately involved in the education of signal processing professionals at all levels.
+                </p>
+                <p className="mb-6 text-gray-700">
+                  IEEE Signal Processing Society (SPS) provides with dynamic opportunities to collaborate and connect with industry professionals, academics, and students alike working toward the advancement of signal processing and the technology it enables. It includes conferences and events, employment and professional networking opportunities, award eligibility, and top-ranked educational resources that help build rewarding, lifelong careers in the signal processing fields.
                 </p>
                 
                 <div className="grid md:grid-cols-3 gap-6 mt-8">

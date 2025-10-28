@@ -41,8 +41,13 @@ const BranchUserManagement = () => {
 
   useEffect(() => {
     fetchBranchDetails();
-    fetchBranchUsers();
   }, [branchId]);
+
+  useEffect(() => {
+    if (branch) {
+      fetchBranchUsers();
+    }
+  }, [branch]);
 
   const fetchBranchDetails = async () => {
     try {
@@ -55,9 +60,13 @@ const BranchUserManagement = () => {
 
   const fetchBranchUsers = async () => {
     try {
-      const response = await adminAPI.getBranchUsers(branch?.code || branchId);
+      const branchCode = branch?.code || branchId;
+      console.log('Fetching users for branch:', branchCode);
+      const response = await adminAPI.getBranchUsers(branchCode);
+      console.log('Users response:', response.data);
       setUsers(response.data.users || []);
     } catch (error) {
+      console.error('Error fetching branch users:', error);
       setMessage({ type: 'error', text: 'Failed to fetch branch users' });
     } finally {
       setLoading(false);

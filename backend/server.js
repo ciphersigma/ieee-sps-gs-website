@@ -68,6 +68,7 @@ app.use('/api/content', require('./routes/content'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/users', require('./routes/users'));
 app.use('/api/branches', require('./routes/branches'));
+app.use('/api/awards', require('./routes/awards'));
 app.use('/api/public', require('./routes/public'));
 
 // Health check

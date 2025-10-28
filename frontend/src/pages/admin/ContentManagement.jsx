@@ -20,11 +20,13 @@ const ContentManagement = () => {
   const fetchContent = async () => {
     try {
       setLoading(true);
-      const data = await contentAPI.getNews();
-      setContent(data || []);
+      const response = await contentAPI.getNews();
+      const data = response?.data || response || [];
+      setContent(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Error fetching content:', err);
       setError('Failed to load content');
+      setContent([]);
     } finally {
       setLoading(false);
     }
