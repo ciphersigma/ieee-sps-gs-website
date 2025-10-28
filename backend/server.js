@@ -95,11 +95,37 @@ app.use('/api/newsletter', require('./routes/newsletter'));
 app.use('/api/analytics', require('./routes/analytics'));
 app.use('/api/public', require('./routes/public'));
 
-// Health check
+// Health check with keep-alive
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'Server is running' });
+  res.json({ 
+    status: 'OK', 
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Keep-alive ping endpoint
+app.get('/api/ping', (req, res) => {
+  res.json({ message: 'pong', timestamp: new Date().toISOString() });
 });
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  
+  // Self-ping to keep server alive (every 14 minutes)
+  if (process.env.NODE_ENV === 'production') {
+    const keepAlive = () => {
+      const url = process.env.RENDER_EXTERNAL_URL || `https://ieee-sps-gs-website.onrender.com`;
+      fetch(`${url}/api/ping`)
+        .then(() => console.log('Keep-alive ping sent at', new Date().toISOString()))
+        .catch(err => console.log('Keep-alive ping failed:', err.message));
+    };
+    
+    // Initial ping after 1 minute
+    setTimeout(keepAlive, 60000);
+    
+    // Then ping every 14 minutes
+    setInterval(keepAlive, 14 * 60 * 1000);
+  }
 });
