@@ -22,6 +22,8 @@ import ScholarshipsPage from './pages/ScholarshipsPage';
 import StudentTravelGrantsPage from './pages/StudentTravelGrantsPage';
 import AwardsPage from './pages/AwardsPage';
 import NewsletterPage from './pages/NewsletterPage';
+import JoinBenefitsPage from './pages/JoinBenefitsPage';
+import StudentChaptersPage from './pages/StudentChaptersPage';
 import ScrollToTop from './components/common/ScrollToTop';
 import EasterEggs from './components/common/EasterEggs';
 
@@ -139,6 +141,11 @@ const App = () => {
               </MainLayout>
             } />
             <Route path="/opportunities/*" element={<MainLayout><PlaceholderPage title="Opportunities" /></MainLayout>} />
+            <Route path="/student/chapters" element={
+              <MainLayout>
+                <StudentChaptersPage />
+              </MainLayout>
+            } />
             <Route path="/student/*" element={<MainLayout><PlaceholderPage title="Student Corner" /></MainLayout>} />
             <Route path="/awards" element={
               <MainLayout>
@@ -161,7 +168,11 @@ const App = () => {
               </MainLayout>
             } />
             <Route path="/gallery" element={<MainLayout><PlaceholderPage title="Photo Gallery" /></MainLayout>} />
-            <Route path="/join" element={<MainLayout><PlaceholderPage title="Join IEEE SPS Gujarat" description="Membership information coming soon..." /></MainLayout>} />
+            <Route path="/join" element={
+              <MainLayout>
+                <JoinBenefitsPage />
+              </MainLayout>
+            } />
             <Route path="/sitemap" element={
               <MainLayout>
                 <SitemapPage />

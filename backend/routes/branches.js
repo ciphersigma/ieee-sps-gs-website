@@ -5,6 +5,20 @@ const User = require('../models/User');
 const { authenticateToken, requireSuperAdmin } = require('./auth');
 const router = express.Router();
 
+// Public route - Get active student branches for student chapters page
+router.get('/public/student-chapters', async (req, res) => {
+  try {
+    const branches = await Branch.find({ is_active: true })
+      .select('name code college_name city district chairperson established_date member_count website')
+      .sort({ name: 1 });
+    
+    res.json({ success: true, data: branches });
+  } catch (error) {
+    console.error('Error fetching student chapters:', error);
+    res.status(500).json({ error: 'Failed to fetch student chapters' });
+  }
+});
+
 // Get all branches
 router.get('/', authenticateToken, requireSuperAdmin, async (req, res) => {
   try {

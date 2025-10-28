@@ -58,6 +58,10 @@ const branchSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  website: {
+    type: String,
+    trim: true
+  },
   created_at: {
     type: Date,
     default: Date.now

@@ -21,6 +21,7 @@ const BranchManagement = () => {
     college_name: '',
     city: '',
     district: '',
+    website: '',
     is_active: true,
     chairperson: { name: '', email: '', phone: '' },
     counsellor: { name: '', email: '', phone: '' },
@@ -128,6 +129,7 @@ const BranchManagement = () => {
       college_name: '',
       city: '',
       district: '',
+      website: '',
       is_active: true,
       chairperson: { name: '', email: '', phone: '' },
       counsellor: { name: '', email: '', phone: '' },
@@ -145,6 +147,7 @@ const BranchManagement = () => {
       college_name: branch.college_name,
       city: branch.city,
       district: branch.district,
+      website: branch.website || '',
       is_active: branch.is_active,
       chairperson: branch.chairperson || { name: '', email: '', phone: '' },
       counsellor: branch.counsellor || { name: '', email: '', phone: '' },
@@ -248,6 +251,17 @@ const BranchManagement = () => {
                   type="date"
                   value={formData.established_date}
                   onChange={(e) => setFormData({ ...formData, established_date: e.target.value })}
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Website</label>
+                <input
+                  type="url"
+                  value={formData.website}
+                  onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                  placeholder="https://example.com"
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
