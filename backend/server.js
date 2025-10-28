@@ -125,7 +125,7 @@ app.listen(PORT, () => {
     // Initial ping after 1 minute
     setTimeout(keepAlive, 60000);
     
-    // Then ping every 14 minutes
-    setInterval(keepAlive, 14 * 60 * 1000);
+    // Then ping every 10 minutes
+    setInterval(keepAlive, 10 * 60 * 1000);
   }
 });
