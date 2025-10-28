@@ -21,6 +21,7 @@ import SitemapPage from './pages/SitemapPage';
 import ScholarshipsPage from './pages/ScholarshipsPage';
 import StudentTravelGrantsPage from './pages/StudentTravelGrantsPage';
 import AwardsPage from './pages/AwardsPage';
+import NewsletterPage from './pages/NewsletterPage';
 import ScrollToTop from './components/common/ScrollToTop';
 import EasterEggs from './components/common/EasterEggs';
 
@@ -154,7 +155,11 @@ const App = () => {
                 <NewsDetailPage />
               </MainLayout>
             } />
-            <Route path="/newsletter" element={<MainLayout><PlaceholderPage title="Newsletter" /></MainLayout>} />
+            <Route path="/newsletter" element={
+              <MainLayout>
+                <NewsletterPage />
+              </MainLayout>
+            } />
             <Route path="/gallery" element={<MainLayout><PlaceholderPage title="Photo Gallery" /></MainLayout>} />
             <Route path="/join" element={<MainLayout><PlaceholderPage title="Join IEEE SPS Gujarat" description="Membership information coming soon..." /></MainLayout>} />
             <Route path="/sitemap" element={

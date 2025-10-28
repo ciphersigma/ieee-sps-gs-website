@@ -91,6 +91,13 @@ const SuperAdminDash = () => {
       color: 'bg-yellow-100 text-yellow-600'
     },
     {
+      name: 'Newsletter Management',
+      description: 'Manage newsletter archive',
+      icon: FileText,
+      link: '/admin/newsletter',
+      color: 'bg-pink-100 text-pink-600'
+    },
+    {
       name: 'Members Directory',
       description: 'Chapter members',
       icon: Users,

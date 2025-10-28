@@ -25,6 +25,7 @@ import BranchUserManagement from '../pages/admin/BranchUserManagement';
 import BranchDashboard from '../pages/admin/BranchDashboard';
 import ProfilePage from '../pages/admin/ProfilePage';
 import AwardsManagement from '../pages/admin/AwardsManagement';
+import NewsletterManagement from '../pages/admin/NewsletterManagement';
 
 // Protected route component with enhanced role checking
 const ProtectedRoute = ({ children, requiredRole = null, requiredPermission = null }) => {
@@ -223,6 +224,15 @@ const AdminRoutes = () => {
         <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
           <AdminLayout>
             <AwardsManagement />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
+      {/* Newsletter Management - Super Admin Only */}
+      <Route path="newsletter" element={
+        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+          <AdminLayout>
+            <NewsletterManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />

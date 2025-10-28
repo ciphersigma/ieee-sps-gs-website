@@ -156,10 +156,10 @@ const ScholarshipsPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-16">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-700 text-white py-12 md:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Scholarships, Grants & Fellowships</h1>
-          <p className="text-xl max-w-3xl opacity-90">
+          <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">Scholarships, Grants & Fellowships</h1>
+          <p className="text-base md:text-xl max-w-3xl opacity-90 leading-relaxed">
             Explore IEEE funding opportunities to support your academic and research endeavors
           </p>
         </div>
@@ -227,23 +227,25 @@ const ScholarshipsPage = () => {
               <p className="text-gray-500">No scholarships found matching your criteria.</p>
             </div>
           ) : (
-            <div className="space-y-8">
+            <div className="space-y-6 md:space-y-8">
               {filteredScholarships.map((scholarship) => (
-                <div key={scholarship.id} className="border-b border-gray-200 pb-6 last:border-b-0">
-                  <div className="flex items-center gap-4 mb-3">
-                    <h3 className="text-xl font-semibold text-gray-800">{scholarship.title}</h3>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      scholarship.category === 'Scholarship' ? 'bg-blue-100 text-blue-800' :
-                      scholarship.category === 'Fellowship' ? 'bg-purple-100 text-purple-800' :
-                      scholarship.category === 'Travel Grant' ? 'bg-green-100 text-green-800' :
-                      scholarship.category === 'Research Grant' ? 'bg-orange-100 text-orange-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {scholarship.category}
-                    </span>
-                    <span className="text-lg font-bold text-blue-600">{scholarship.amount}</span>
+                <div key={scholarship.id} className="border-b border-gray-200 pb-4 md:pb-6 last:border-b-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
+                    <h3 className="text-lg md:text-xl font-semibold text-gray-800 flex-1">{scholarship.title}</h3>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        scholarship.category === 'Scholarship' ? 'bg-blue-100 text-blue-800' :
+                        scholarship.category === 'Fellowship' ? 'bg-purple-100 text-purple-800' :
+                        scholarship.category === 'Travel Grant' ? 'bg-green-100 text-green-800' :
+                        scholarship.category === 'Research Grant' ? 'bg-orange-100 text-orange-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {scholarship.category}
+                      </span>
+                      <span className="text-base md:text-lg font-bold text-blue-600">{scholarship.amount}</span>
+                    </div>
                   </div>
-                  <p className="text-gray-600 mb-3">{scholarship.description}</p>
+                  <p className="text-gray-600 mb-3 text-sm md:text-base leading-relaxed">{scholarship.description}</p>
                   <div className="text-sm">
                     <span className="font-medium text-gray-700">Eligibility: </span>
                     <span className="text-gray-600">{scholarship.eligibility}</span>

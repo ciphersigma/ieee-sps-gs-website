@@ -59,6 +59,11 @@ const AdminSidebar = ({ isOpen, toggleSidebar }) => {
           path: '/admin/awards'
         },
         {
+          name: 'Newsletter',
+          icon: FileText,
+          path: '/admin/newsletter'
+        },
+        {
           name: 'Carousel',
           icon: Image,
           path: '/admin/carousel'
@@ -88,18 +93,18 @@ const AdminSidebar = ({ isOpen, toggleSidebar }) => {
       
       {/* Sidebar */}
       <aside 
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 sm:w-72 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Logo */}
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">IEEE SPS Admin</h2>
-          <p className="text-sm text-gray-600">Gujarat Chapter</p>
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-bold text-gray-800">IEEE SPS Admin</h2>
+          <p className="text-xs sm:text-sm text-gray-600">Gujarat Chapter</p>
         </div>
         
         {/* Navigation */}
-        <nav className="px-4 py-6">
+        <nav className="px-3 sm:px-4 py-6">
           <ul className="space-y-1">
             {menuItems.map((item, index) => {
               const Icon = item.icon;
@@ -108,7 +113,7 @@ const AdminSidebar = ({ isOpen, toggleSidebar }) => {
                   <NavLink 
                     to={item.path}
                     className={({ isActive }) => 
-                      `flex items-center px-4 py-3 text-gray-700 rounded-md transition-colors ${
+                      `flex items-center px-3 sm:px-4 py-3 text-gray-700 rounded-md transition-colors text-sm sm:text-base ${
                         isActive 
                           ? 'bg-blue-50 text-blue-600 font-medium'
                           : 'hover:bg-gray-100'
@@ -120,8 +125,8 @@ const AdminSidebar = ({ isOpen, toggleSidebar }) => {
                       }
                     }}
                   >
-                    <Icon className="w-5 h-5 mr-3" />
-                    <span>{item.name}</span>
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" />
+                    <span className="truncate">{item.name}</span>
                   </NavLink>
                 </li>
               );

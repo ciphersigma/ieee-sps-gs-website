@@ -405,11 +405,11 @@ const Header = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-1">
+          <nav className="hidden lg:flex items-center space-x-1">
             {/* Navigation Pills */}
             <Link
               to="/"
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 isActive('/')
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
@@ -419,7 +419,7 @@ const Header = () => {
             </Link>
             <Link
               to="/about"
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 isActive('/about')
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
@@ -429,7 +429,7 @@ const Header = () => {
             </Link>
             <Link
               to="/research"
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 isActive('/research')
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
@@ -439,7 +439,7 @@ const Header = () => {
             </Link>
             <Link
               to="/contact"
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`px-3 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 isActive('/contact')
                   ? 'bg-blue-600 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100 hover:text-blue-600'
@@ -451,16 +451,17 @@ const Header = () => {
           </nav>
 
           {/* Right side - Menu and Join button */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <Link
               to="/join"
-              className="hidden sm:inline-flex px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105"
+              className="hidden md:inline-flex px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full hover:from-blue-700 hover:to-blue-800 transition-all duration-200 text-sm font-medium shadow-md hover:shadow-lg transform hover:scale-105"
             >
-              Join IEEE SPS
+              <span className="hidden lg:inline">Join IEEE SPS</span>
+              <span className="lg:hidden">Join</span>
             </Link>
             <button
               onClick={openHamburgerMenu}
-              className="p-3 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-200 shadow-sm hover:shadow-md"
+              className="p-2.5 rounded-full text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-200 shadow-sm hover:shadow-md"
               aria-label="Open menu"
             >
               <Menu className="h-5 w-5" />
