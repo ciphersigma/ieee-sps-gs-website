@@ -18,14 +18,31 @@ if (process.env.NODE_ENV === 'production') {
 
 // CORS configuration
 const allowedOrigins = process.env.NODE_ENV === 'production' 
-  ? [process.env.FRONTEND_URL, 'https://ieee-sps-gs-website.vercel.app']
+  ? [process.env.FRONTEND_URL, 'https://ieee-sps-gs-website.vercel.app', 'https://ieee-sps-gs-website-*.vercel.app']
   : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list or matches Vercel pattern
+    if (allowedOrigins.includes(origin) || 
+        origin.includes('ieee-sps-gs-website') && origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // For development, allow localhost
+    if (process.env.NODE_ENV !== 'production' && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar']
 }));
 
 // Handle preflight requests
