@@ -15,7 +15,7 @@ const StudentRepresentativesPage = () => {
       position: "Chair",
       affiliation: "SCET, Surat",
       email: "khushboo.jha@ieeesps.org",
-      image: `${teamImageUrl}khushboo-jha.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Khushboo_Jha_ivcvdw.jpg`,
       linkedin: "https://linkedin.com/in/khushboojha",
     },
     {
@@ -33,7 +33,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "SCET, Surat",
       email: "anika.mehta@ieeesps.org",
-      image: `${teamImageUrl}anika-mehta.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621145/Anika_Mehta_yrhiu7.jpg`,
       linkedin: "https://linkedin.com/in/anikamehta",
     },
     {
@@ -42,7 +42,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Ganpat University, Mehsana",
       email: "hill.soni@ieeesps.org",
-      image: `${teamImageUrl}hill-soni.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621145/Hill_Soni_ci4ara.jpg`,
       linkedin: "https://linkedin.com/in/hillsoni",
     },
     {
@@ -67,9 +67,9 @@ const StudentRepresentativesPage = () => {
       id: 7,
       name: "Dev Ray",
       position: "Student Representative",
-      affiliation: "SVNIT Surat",
+      affiliation: "GCET, Anand",
       email: "dev.ray@ieeesps.org",
-      image: `${teamImageUrl}dev-ray.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Dev_Ray_jqmz8r.jpg`,
       linkedin: "https://linkedin.com/in/devray",
     },
     {
@@ -78,7 +78,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Kadi Sarva Vishwavidyalya",
       email: "chrisha.dabhi@ieeesps.org",
-      image: `${teamImageUrl}chrisha-dabhi.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621145/Chrisha_Dabhi_q0z2ar.jpg`,
       linkedin: "https://linkedin.com/in/chrishadabhi",
     },
     {
