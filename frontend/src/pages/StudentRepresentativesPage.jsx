@@ -24,7 +24,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Ganpat University, Mehsana",
       email: "tirth.patel@ieeesps.org",
-      image: `${teamImageUrl}tirth-patel.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621147/Tirth_Patel_r6hj7u.jpg`,
       linkedin: "https://linkedin.com/in/tirthpatel",
     },
     {
@@ -51,7 +51,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Silver Oak University, Ahmedabad",
       email: "prashant.chettiyar@ieeesps.org",
-      image: `${teamImageUrl}prashant-chettiyar.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Prashant_Chettiyar_veaqyt.jpg`,
       linkedin: "https://linkedin.com/in/prashantchettiyar",
     },
     {
