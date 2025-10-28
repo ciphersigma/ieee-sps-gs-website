@@ -60,7 +60,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Silver Oak University, Ahmedabad",
       email: "dhruvi.mandloi@ieeesps.org",
-      image: `${teamImageUrl}dhruvi-mandloi.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Dhruvi_Mandloi_nitz2w.jpg`,
       linkedin: "https://linkedin.com/in/dhruvimandloi",
     },
     {
@@ -87,7 +87,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Ganpat University, Mehsana",
       email: "gunjan.sharma@ieeesps.org",
-      image: `${teamImageUrl}gunjan-sharma.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Gunjan_Sharma_comsg8.jpg`,
       linkedin: "https://linkedin.com/in/gunjansharma",
     },
     {
@@ -96,7 +96,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "Ahmedabad University",
       email: "tanisha.agarwal@ieeesps.org",
-      image: `${teamImageUrl}tanisha-agarwal.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Tanisha_Agarwal_fvijk3.jpg`,
       linkedin: "https://linkedin.com/in/tanishaagarwal",
     },
     {
@@ -105,7 +105,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "GEC Gandhinagar",
       email: "sujal.sutariya@ieeesps.org",
-      image: `${teamImageUrl}sujal-sutariya.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Sujal_Sutariya_kejofe.jpg`,
       linkedin: "https://linkedin.com/in/sujalsutariya",
     },
     {
@@ -114,7 +114,7 @@ const StudentRepresentativesPage = () => {
       position: "Student Representative",
       affiliation: "VGEC Ahmedabad",
       email: "payal.makwana@ieeesps.org",
-      image: `${teamImageUrl}payal-makwana.jpg`,
+      image: `https://res.cloudinary.com/dfoqoprpx/image/upload/v1761621146/Payal_Makawana_zpgn4q.jpg`,
       linkedin: "https://linkedin.com/in/payalmakwana",
     }
   ];
