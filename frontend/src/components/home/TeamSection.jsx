@@ -53,7 +53,7 @@ const TeamSection = () => {
       name: "Dr. Mita Paunwala",
       position: "Chair",
       affiliation: "Associate Professor, Dean R & D, GCRCET, Surat",
-      image: "/assets/images/team/mita-paunwala.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761631538/download_fmwswe.jpg",
     },
     {
       id: 2,
