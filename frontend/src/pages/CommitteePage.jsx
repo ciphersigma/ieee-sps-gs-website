@@ -88,7 +88,7 @@ const CommitteePage = () => {
       name: "Dr. Deepak Mathur",
       position: "Member at Large",
       affiliation: "IEEE SPSGS",
-      image: "/assets/images/team/deepak-mathur.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761632425/deepak_mathur_jbzi0m.jpg",
       category: "Extended"
     },
     {
