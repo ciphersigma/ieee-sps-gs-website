@@ -46,7 +46,7 @@ const CommitteePage = () => {
       name: "Dr. Mita Paunwala",
       position: "Chair",
       affiliation: "Associate Professor, Dean R & D, GCRCET, Surat",
-      image: "/assets/images/team/mita-paunwala.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761631538/download_fmwswe.jpg",
       category: "Core"
     },
     {
@@ -78,7 +78,7 @@ const CommitteePage = () => {
       name: "Dr. Chirag Paunwala",
       position: "Advisor, Immediate Past Chair",
       affiliation: "Professor, HOD EC Dept, SCET, Surat",
-      image: "/assets/images/team/chirag-paunwala.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761632009/cp_h3rwzb.png",
       category: "Core"
     },
     
@@ -88,7 +88,7 @@ const CommitteePage = () => {
       name: "Dr. Deepak Mathur",
       position: "Member at Large",
       affiliation: "IEEE SPSGS",
-      image: "/assets/images/team/deepak-mathur.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761632425/deepak_mathur_jbzi0m.jpg",
       category: "Extended"
     },
     {
@@ -152,7 +152,7 @@ const CommitteePage = () => {
       name: "Mr. Giriraj Shah",
       position: "YP Chair",
       affiliation: "Technical Support Engineer, Crest Data Systems",
-      image: "/assets/images/team/giriraj-shah.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761632081/20250111_001704_k5jych.jpg",
       category: "Extended"
     },
     {

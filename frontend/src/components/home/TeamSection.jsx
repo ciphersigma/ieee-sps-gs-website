@@ -81,7 +81,7 @@ const TeamSection = () => {
       name: "Dr. Chirag Paunwala",
       position: "Advisor, Immediate Past Chair",
       affiliation: "Professor, HOD EC Dept, SCET, Surat",
-      image: "/assets/images/team/chirag-paunwala.jpg",
+      image: "https://res.cloudinary.com/dfoqoprpx/image/upload/v1761632009/cp_h3rwzb.png",
     }
   ];
 
