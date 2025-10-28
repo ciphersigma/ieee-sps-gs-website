@@ -26,6 +26,16 @@ const newsletterSchema = new mongoose.Schema({
     type: Date,
     required: true
   },
+  volume: {
+    type: Number,
+    required: true,
+    min: 1
+  },
+  issue: {
+    type: Number,
+    required: true,
+    min: 1
+  },
   issue_number: {
     type: String,
     required: true,
@@ -56,5 +66,8 @@ const newsletterSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+// Create compound index for volume and issue uniqueness
+newsletterSchema.index({ volume: 1, issue: 1 }, { unique: true });
 
 module.exports = mongoose.model('Newsletter', newsletterSchema);

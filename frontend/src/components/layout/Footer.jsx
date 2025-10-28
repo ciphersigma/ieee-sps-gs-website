@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Mail, Phone, ExternalLink } from 'lucide-react';
 import Logo from '../common/Logo';
+import ViewCounter from '../common/ViewCounter';
 
 const Footer = () => {
   return (
@@ -151,8 +152,13 @@ const Footer = () => {
             </div>
           </div>
           
-          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; {new Date().getFullYear()} IEEE Signal Processing Society Gujarat Section. All rights reserved.</p>
+          <div className="border-t border-gray-800 mt-8 pt-8">
+            <div className="flex flex-col sm:flex-row justify-between items-center text-sm text-gray-400">
+              <p>&copy; {new Date().getFullYear()} IEEE Signal Processing Society Gujarat Section. All rights reserved.</p>
+              <div className="mt-2 sm:mt-0">
+                <ViewCounter />
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -64,11 +64,11 @@ router.post('/admin', authenticateToken, requireSuperAdmin, uploadFiles.fields([
   { name: 'cover_image', maxCount: 1 }
 ]), async (req, res) => {
   try {
-    const { title, description, publication_date, issue_number, status, tags } = req.body;
+    const { title, description, publication_date, volume, issue, issue_number, status, tags } = req.body;
     
-    console.log('Creating newsletter with data:', { title, description, publication_date, issue_number, status });
+    console.log('Creating newsletter with data:', { title, description, publication_date, volume, issue, status });
     
-    if (!title || !description || !publication_date || !issue_number) {
+    if (!title || !description || !publication_date || !volume || !issue) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
 
@@ -76,7 +76,9 @@ router.post('/admin', authenticateToken, requireSuperAdmin, uploadFiles.fields([
       title: title.trim(),
       description: description.trim(),
       publication_date: new Date(publication_date),
-      issue_number: issue_number.trim(),
+      volume: parseInt(volume),
+      issue: parseInt(issue),
+      issue_number: issue_number ? issue_number.trim() : `Vol ${volume}, Issue ${issue}`,
       status: status || 'draft',
       tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       created_by: req.user._id || req.user.id
@@ -127,13 +129,15 @@ router.put('/admin/:id', authenticateToken, requireSuperAdmin, uploadFiles.field
   { name: 'cover_image', maxCount: 1 }
 ]), async (req, res) => {
   try {
-    const { title, description, publication_date, issue_number, status, tags } = req.body;
+    const { title, description, publication_date, volume, issue, issue_number, status, tags } = req.body;
     
     const updateData = {
       title: title.trim(),
       description: description.trim(),
       publication_date: new Date(publication_date),
-      issue_number: issue_number.trim(),
+      volume: parseInt(volume),
+      issue: parseInt(issue),
+      issue_number: issue_number ? issue_number.trim() : `Vol ${volume}, Issue ${issue}`,
       status,
       tags: tags ? tags.split(',').map(tag => tag.trim()) : []
     };
@@ -195,6 +199,40 @@ router.delete('/admin/:id', authenticateToken, requireSuperAdmin, async (req, re
 });
 
 // Serve PDF files
+// Get newsletters by volume
+router.get('/volume/:volume', async (req, res) => {
+  try {
+    const volume = parseInt(req.params.volume);
+    const newsletters = await Newsletter.find({ 
+      volume: volume, 
+      status: 'published' 
+    })
+      .sort({ issue: 1 })
+      .populate('created_by', 'name');
+    res.json(newsletters);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
+// Get available volumes
+router.get('/volumes/list', async (req, res) => {
+  try {
+    const volumes = await Newsletter.aggregate([
+      { $match: { status: 'published' } },
+      { $group: { 
+        _id: '$volume', 
+        issueCount: { $sum: 1 },
+        latestIssue: { $max: '$issue' }
+      }},
+      { $sort: { _id: -1 } }
+    ]);
+    res.json(volumes);
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+});
+
 router.get('/pdf/:id', async (req, res) => {
   try {
     console.log('Serving PDF for newsletter ID:', req.params.id);

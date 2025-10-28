@@ -135,9 +135,9 @@ const ImageCarousel = () => {
               
               {/* Dots indicator - styled with blue theme */}
               <div className="absolute bottom-3 left-0 right-0 flex justify-center space-x-1.5 z-10">
-                {images.map((_, index) => (
+                {images.map((image, index) => (
                   <button
-                    key={index}
+                    key={`dot-${image.id || index}`}
                     onClick={() => setCurrentSlide(index)}
                     className={`w-2 h-2 rounded-full transition-colors ${
                       index === currentSlide 

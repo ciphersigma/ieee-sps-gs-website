@@ -10,7 +10,8 @@ const NewsletterManagement = () => {
     title: '',
     description: '',
     publication_date: '',
-    issue_number: '',
+    volume: 1,
+    issue: 1,
     status: 'draft',
     tags: ''
   });
@@ -113,7 +114,8 @@ const NewsletterManagement = () => {
       title: newsletter.title,
       description: newsletter.description,
       publication_date: newsletter.publication_date.split('T')[0],
-      issue_number: newsletter.issue_number,
+      volume: newsletter.volume || 1,
+      issue: newsletter.issue || 1,
       status: newsletter.status,
       tags: newsletter.tags.join(', ')
     });
@@ -151,7 +153,8 @@ const NewsletterManagement = () => {
       title: '',
       description: '',
       publication_date: '',
-      issue_number: '',
+      volume: 1,
+      issue: 1,
       status: 'draft',
       tags: ''
     });
@@ -208,16 +211,28 @@ const NewsletterManagement = () => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Issue Number</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Volume</label>
                 <input
-                  type="text"
-                  value={formData.issue_number}
-                  onChange={(e) => setFormData({...formData, issue_number: e.target.value})}
-                  placeholder="e.g., Vol 1, Issue 3"
+                  type="number"
+                  min="1"
+                  value={formData.volume}
+                  onChange={(e) => setFormData({...formData, volume: e.target.value})}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   required
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Issue</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={formData.issue}
+                  onChange={(e) => setFormData({...formData, issue: e.target.value})}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  required
+                />
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Publication Date</label>
                 <input
@@ -326,11 +341,11 @@ const NewsletterManagement = () => {
                       )}
                       <div className="min-w-0 flex-1">
                         <div className="text-sm font-medium text-gray-900 truncate">{newsletter.title}</div>
-                        <div className="text-xs text-gray-500 truncate md:hidden">{newsletter.issue_number}</div>
+                        <div className="text-xs text-gray-500 truncate md:hidden">Vol {newsletter.volume || 'N/A'}, Issue {newsletter.issue || 'N/A'}</div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">{newsletter.issue_number}</td>
+                  <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">Vol {newsletter.volume}, Issue {newsletter.issue}</td>
                   <td className="px-3 md:px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(newsletter.publication_date)}</td>
                   <td className="px-3 md:px-6 py-4 whitespace-nowrap">
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${

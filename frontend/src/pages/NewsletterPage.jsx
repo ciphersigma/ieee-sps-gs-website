@@ -6,11 +6,14 @@ const NewsletterPage = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedYear, setSelectedYear] = useState('all');
+  const [selectedVolume, setSelectedVolume] = useState('all');
+  const [volumes, setVolumes] = useState([]);
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
     fetchNewsletters();
+    fetchVolumes();
   }, []);
 
   const fetchNewsletters = async () => {
@@ -22,6 +25,16 @@ const NewsletterPage = () => {
       console.error('Error fetching newsletters:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchVolumes = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/newsletter/volumes/list`);
+      const data = await response.json();
+      setVolumes(data);
+    } catch (error) {
+      console.error('Error fetching volumes:', error);
     }
   };
 
@@ -76,7 +89,10 @@ const NewsletterPage = () => {
     const matchesYear = selectedYear === 'all' || 
                        new Date(newsletter.publication_date).getFullYear().toString() === selectedYear;
     
-    return matchesSearch && matchesYear;
+    const matchesVolume = selectedVolume === 'all' || 
+                         (newsletter.volume && newsletter.volume.toString() === selectedVolume);
+    
+    return matchesSearch && matchesYear && matchesVolume;
   });
 
   if (loading) {
@@ -157,6 +173,16 @@ const NewsletterPage = () => {
             <div className="flex items-center gap-2">
               <Filter className="text-gray-400 h-4 w-4 md:h-5 md:w-5" />
               <select
+                value={selectedVolume}
+                onChange={(e) => setSelectedVolume(e.target.value)}
+                className="px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent mr-2"
+              >
+                <option value="all">All Volumes</option>
+                {volumes.map(vol => (
+                  <option key={vol._id} value={vol._id}>Volume {vol._id} ({vol.issueCount} issues)</option>
+                ))}
+              </select>
+              <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
                 className="px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -205,7 +231,10 @@ const NewsletterPage = () => {
                   <div className="p-4 md:p-6">
                     <div className="flex items-center justify-between mb-3">
                       <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2 py-1 rounded-full">
-                        {newsletter.issue_number}
+                        {newsletter.volume && newsletter.issue ? 
+                          `Vol ${newsletter.volume}, Issue ${newsletter.issue}` : 
+                          newsletter.issue_number || 'Newsletter'
+                        }
                       </span>
                       <div className="flex items-center text-gray-500 text-xs">
                         <Download className="h-3 w-3 mr-1" />
