@@ -1,15 +1,16 @@
-// src/pages/admin/AdminDashboard.jsx - Student Branch Admin Dashboard
+// src/pages/admin/AdminDashboard.jsx - Branch Admin Dashboard
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Calendar, Users, FileText, Settings, 
-  Clock, ChevronRight, MapPin, Award, Bell
+  Clock, ChevronRight, Award
 } from 'lucide-react';
 import { db } from '../../services/database';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const AdminDashboard = () => {
-  const { user, isStudentBranchAdmin, getUserBranch, hasPermission } = useAuth();
+  const { user, getUserBranch, hasPermission } = useAuth();
   const [stats, setStats] = useState({
     totalEvents: 0,
     upcomingEvents: 0,
@@ -21,7 +22,6 @@ const AdminDashboard = () => {
   const [dashboardError, setDashboardError] = useState(null);
   
   const branchId = getUserBranch();
-  const isBranchAdmin = isStudentBranchAdmin();
 
   // Fetch dashboard data
   useEffect(() => {
@@ -29,7 +29,7 @@ const AdminDashboard = () => {
       try {
         setLoading(true);
         
-        const eventFilters = isBranchAdmin && branchId ? { branch: branchId } : {};
+        const eventFilters = branchId ? { branch: branchId } : {};
         
         const [totalEventsResult, upcomingEventsResult, recentEventsResult] = await Promise.all([
           db.count('events'),
@@ -40,7 +40,7 @@ const AdminDashboard = () => {
         setStats({
           totalEvents: totalEventsResult?.data || 0,
           upcomingEvents: upcomingEventsResult?.count || 0,
-          totalMembers: isBranchAdmin ? 45 : 0,
+          totalMembers: 45,
           loading: false
         });
         
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
     };
     
     fetchDashboardData();
-  }, [isBranchAdmin, branchId]);
+  }, [branchId]);
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -101,15 +101,6 @@ const AdminDashboard = () => {
       permission: 'content'
     },
     {
-      id: 'achievements',
-      name: 'Achievements',
-      description: 'Showcase branch achievements and awards',
-      icon: Award,
-      link: '/admin/achievements',
-      color: 'bg-yellow-100 text-yellow-600',
-      permission: 'content'
-    },
-    {
       id: 'settings',
       name: 'Branch Settings',
       description: 'Configure branch-specific settings',
@@ -125,25 +116,10 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="container mx-auto py-8 px-4">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center mb-4">
-          <MapPin className="mr-3 text-blue-600" size={32} />
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Branch Admin Dashboard</h1>
-            <p className="text-gray-600">{user?.organization || 'Student Branch'}</p>
-            <p className="text-sm text-gray-500">Welcome back, {user?.name || user?.email?.split('@')[0] || 'Admin'}</p>
-          </div>
-        </div>
-        {isBranchAdmin && (
-          <div className="flex items-center">
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-              Branch Administrator
-            </span>
-          </div>
-        )}
-      </div>
+    <AdminPageWrapper
+      title="Branch Dashboard"
+      subtitle={`Welcome back, ${user?.name || user?.email?.split('@')[0] || 'Admin'}`}
+    >
 
       {/* Error Alert */}
       {dashboardError && (
@@ -153,7 +129,7 @@ const AdminDashboard = () => {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center">
             <Calendar className="h-8 w-8 text-blue-500 mr-3" />
@@ -180,15 +156,7 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <Award className="h-8 w-8 text-yellow-500 mr-3" />
-            <div>
-              <p className="text-sm font-medium text-gray-500">Achievements</p>
-              <p className="text-2xl font-bold text-gray-900">8</p>
-            </div>
-          </div>
-        </div>
+
       </div>
 
       {/* Recent Events */}
@@ -274,22 +242,7 @@ const AdminDashboard = () => {
         })}
       </div>
 
-      {/* Branch Info */}
-      {isBranchAdmin && (
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-          <div className="flex">
-            <Bell className="h-5 w-5 text-blue-500 mr-3" />
-            <div>
-              <h3 className="text-sm font-medium text-blue-800">Branch Administrator Access</h3>
-              <p className="text-sm text-blue-700 mt-1">
-                You have administrative access for <strong>{user?.organization}</strong>. 
-                You can manage events, members, and content specific to your branch.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    </AdminPageWrapper>
   );
 };
 

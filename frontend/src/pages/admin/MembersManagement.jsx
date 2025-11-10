@@ -5,6 +5,7 @@ import {
   Plus, Edit, Trash2, Users, Crown, Search, Mail, Building
 } from 'lucide-react';
 import { membersAPI } from '../../services/api';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const MembersManagement = () => {
   const [activeTab, setActiveTab] = useState('members');
@@ -58,18 +59,11 @@ const MembersManagement = () => {
     { id: 'executive', label: 'Executive Committee', icon: Crown, count: executive.length }
   ];
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Members Management</h1>
+    <AdminPageWrapper
+      title="Members Management"
+      subtitle="Manage branch members and executive committee"
+      action={
         <div className="flex space-x-2">
           <Link
             to="/admin/members/new"
@@ -86,9 +80,15 @@ const MembersManagement = () => {
             Add Executive
           </Link>
         </div>
-      </div>
-
-      {error && (
+      }
+    >
+      {loading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <>
+          {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
           {error}
         </div>
@@ -156,7 +156,9 @@ const MembersManagement = () => {
           onDelete={(id) => handleDelete(id, 'executive')}
         />
       )}
-    </div>
+        </>
+      )}
+    </AdminPageWrapper>
   );
 };
 

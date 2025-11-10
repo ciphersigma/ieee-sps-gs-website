@@ -146,67 +146,75 @@ export const adminAPI = {
   getBranchUsers: (branchId) => apiClient.get(`/users?branch=${branchId}`),
 };
 
+// Public API client without auth token
+const publicApiClient = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
 // Convenience methods for frontend components
 export const api = {
   // Events
   getAllEvents: async () => {
-    const response = await eventsAPI.getEvents();
+    const response = await publicApiClient.get('/events');
     return response.data;
   },
   getUpcomingEvents: async (limit = 10) => {
-    const response = await eventsAPI.getEvents({ upcoming: true, limit });
+    const response = await publicApiClient.get(`/events?upcoming=true&limit=${limit}`);
     return response.data;
   },
   getEventById: async (id) => {
-    const response = await apiClient.get(`/events/${id}`);
+    const response = await publicApiClient.get(`/events/${id}`);
     return response.data;
   },
 
   // Members
   getExecutiveCommittee: async () => {
-    const response = await membersAPI.getExecutive();
+    const response = await publicApiClient.get('/members/executive');
     return response.data;
   },
   getMembers: async () => {
-    const response = await membersAPI.getMembers();
+    const response = await publicApiClient.get('/members');
     return response.data;
   },
 
   // Content
   getCarouselImages: async () => {
-    const response = await adminAPI.getCarousel();
+    const response = await publicApiClient.get('/admin/carousel');
     return response.data;
   },
   getNews: async (limit = 10) => {
-    const response = await contentAPI.getNews({ limit });
+    const response = await publicApiClient.get(`/content/news?limit=${limit}`);
     return response.data;
   },
   getGallery: async () => {
-    const response = await contentAPI.getGallery();
+    const response = await publicApiClient.get('/content/gallery');
     return response.data;
   },
 
   // Research
   getResearchAreas: async () => {
-    const response = await researchAPI.getAreas();
+    const response = await publicApiClient.get('/research/areas');
     return response.data;
   },
   getResearchProjects: async () => {
-    const response = await researchAPI.getProjects();
+    const response = await publicApiClient.get('/research/projects');
     return response.data;
   },
   getResearchPublications: async () => {
-    const response = await researchAPI.getPublications();
+    const response = await publicApiClient.get('/research/publications');
     return response.data;
   },
   getResearchStats: async () => {
-    const response = await researchAPI.getStats();
+    const response = await publicApiClient.get('/research/stats');
     return response.data;
   },
 
   // Branches
   getBranchById: async (id) => {
-    const response = await branchAPI.getBranch(id);
+    const response = await publicApiClient.get(`/branches/${id}`);
     return response.data;
   },
 

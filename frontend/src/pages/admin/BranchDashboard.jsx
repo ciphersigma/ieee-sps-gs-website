@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Calendar, Users, FileText, BarChart3, 
-  Plus, Eye, Edit, Trash2, Clock, MapPin 
+  Plus, Eye, Edit, Clock, MapPin 
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const BranchDashboard = () => {
   const { user } = useAuth();
@@ -61,29 +62,19 @@ const BranchDashboard = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="py-8 flex justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
-            {user?.branch_id || 'Branch'} - Branch Dashboard
-          </h1>
-          <p className="text-gray-600">
-            Manage your student branch activities and events
-          </p>
+    <AdminPageWrapper
+      title="Branch Dashboard"
+      subtitle="Manage your student branch activities and events"
+    >
+      {loading ? (
+        <div className="py-8 flex justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
         </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      ) : (
+        <>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -257,9 +248,10 @@ const BranchDashboard = () => {
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
+          </div>
+        </>
+      )}
+    </AdminPageWrapper>
   );
 };
 

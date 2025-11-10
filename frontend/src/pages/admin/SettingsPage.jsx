@@ -1,6 +1,7 @@
 // src/pages/admin/SettingsPage.jsx
 import React, { useState } from 'react';
-import { Save, AlertCircle, CheckCircle, Globe, Share2, AtSign, Phone, Mail, Info } from 'lucide-react';
+import { Save, AlertCircle, CheckCircle } from 'lucide-react';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const SettingsPage = () => {
   const [settings, setSettings] = useState({
@@ -43,11 +44,11 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-2xl font-bold mb-6">Site Settings</h1>
-
-        {success && (
+    <AdminPageWrapper
+      title="Branch Settings"
+      subtitle="Configure branch-specific settings"
+    >
+      {success && (
           <div className="mb-4 p-3 bg-green-100 text-green-800 rounded-md flex items-center">
             <CheckCircle className="h-5 w-5 mr-2" />
             Settings saved successfully!
@@ -172,8 +173,7 @@ const SettingsPage = () => {
             </div>
           </div>
         </form>
-      </div>
-    </div>
+    </AdminPageWrapper>
   );
 };
 

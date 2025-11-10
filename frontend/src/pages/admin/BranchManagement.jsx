@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Edit2, Trash2, Users, MapPin, Building2, Phone, Mail, User, ToggleLeft, ToggleRight, UserPlus, Key, Settings } from 'lucide-react';
 import { branchAPI, adminAPI } from '../../services/api';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const BranchManagement = () => {
   const navigate = useNavigate();
@@ -163,17 +164,20 @@ const BranchManagement = () => {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Student Branch Management</h1>
+    <AdminPageWrapper
+      title="Student Branch Management"
+      subtitle="Manage all IEEE SPS student branches"
+      action={
         <button
           onClick={() => setShowForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center"
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center shadow-sm"
         >
           <Plus className="h-4 w-4 mr-2" />
           Add Branch
         </button>
-      </div>
+      }
+    >
+      <div className="space-y-6">
 
       {message.text && (
         <div className={`p-4 rounded-md ${message.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
@@ -503,7 +507,8 @@ const BranchManagement = () => {
           onClose={() => setShowUserModal(false)}
         />
       )}
-    </div>
+      </div>
+    </AdminPageWrapper>
   );
 };
 

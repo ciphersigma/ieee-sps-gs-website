@@ -3,10 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { contentAPI } from '../../services/api';
 import { 
-  FileText, Plus, Search, Filter, ChevronDown, Edit, Trash2, 
-  AlertCircle, ExternalLink, Calendar, X, Tag, BarChart2, 
-  BookOpen, Download, File 
+  FileText, Plus, Edit, Trash2, AlertCircle
 } from 'lucide-react';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const ContentManagement = () => {
   const [content, setContent] = useState([]);
@@ -44,39 +43,36 @@ const ContentManagement = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="py-8">
-        <div className="flex items-center justify-center">
+  return (
+    <AdminPageWrapper
+      title="Content Management"
+      subtitle="Manage branch news and articles"
+      action={
+        <Link
+          to="/admin/content/news/new"
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Add Content
+        </Link>
+      }
+    >
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
           <span className="ml-2">Loading content...</span>
         </div>
-      </div>
-    );
-  }
+      ) : (
 
-  return (
-    <div className="py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Content Management</h1>
-          <Link
-            to="/admin/content/news/new"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Content
-          </Link>
-        </div>
+        <>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-md flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              {error}
+            </div>
+          )}
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-md flex items-center">
-            <AlertCircle className="h-5 w-5 mr-2" />
-            {error}
-          </div>
-        )}
-
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+          <div className="bg-white rounded-lg shadow overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200">
             <h2 className="font-semibold">All Content ({content.length})</h2>
           </div>
@@ -158,9 +154,10 @@ const ContentManagement = () => {
               </table>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+          </div>
+        </>
+      )}
+    </AdminPageWrapper>
   );
 };
 

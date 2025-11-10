@@ -26,6 +26,7 @@ import BranchDashboard from '../pages/admin/BranchDashboard';
 import ProfilePage from '../pages/admin/ProfilePage';
 import AwardsManagement from '../pages/admin/AwardsManagement';
 import NewsletterManagement from '../pages/admin/NewsletterManagement';
+import AdminManagement from '../pages/admin/AdminManagement';
 
 // Protected route component with enhanced role checking
 const ProtectedRoute = ({ children, requiredRole = null, requiredPermission = null }) => {
@@ -77,19 +78,16 @@ const ProtectedRoute = ({ children, requiredRole = null, requiredPermission = nu
 
 // Dashboard selector component
 const DashboardSelector = () => {
-  const { user, isSuperAdmin, isBranchUser } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
+  
+  console.log('Dashboard Selector - User:', user);
+  console.log('Dashboard Selector - isSuperAdmin:', isSuperAdmin());
+  console.log('Dashboard Selector - User role:', user?.role);
   
   if (isSuperAdmin()) {
     return <SuperAdminDash />;
-  } else if (isBranchUser()) {
-    return <BranchDashboard />;
   } else {
-    return (
-      <div className="py-8 text-center">
-        <h2 className="text-xl font-bold mb-4">Welcome to Admin Panel</h2>
-        <p className="text-gray-600">Please contact your administrator for access.</p>
-      </div>
-    );
+    return <AdminDashboard />;
   }
 };
 
@@ -196,25 +194,34 @@ const AdminRoutes = () => {
         </ProtectedRoute>
       } />
 
-      {/* Research Management */}
+      {/* Research Management - Super Admin Only */}
       <Route path="research" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
           <AdminLayout>
             <ResearchManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="research/:type/new" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
           <AdminLayout>
             <ResearchForm />
           </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="research/:type/edit/:id" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
           <AdminLayout>
             <ResearchForm />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+
+      {/* Admin Management - Super Admin Only */}
+      <Route path="admins" element={
+        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+          <AdminLayout>
+            <AdminManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />

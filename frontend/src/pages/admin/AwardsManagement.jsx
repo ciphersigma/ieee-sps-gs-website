@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit, Trash2, Award, Calendar, User, Image } from 'lucide-react';
+import { Plus, Edit, Trash2, Award } from 'lucide-react';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const AwardsManagement = () => {
   const [awards, setAwards] = useState([]);
@@ -176,18 +177,11 @@ const AwardsManagement = () => {
     });
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Awards Management</h1>
+    <AdminPageWrapper
+      title="Achievements Management"
+      subtitle="Manage branch achievements and awards"
+      action={
         <button
           onClick={() => setShowForm(true)}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center"
@@ -195,9 +189,15 @@ const AwardsManagement = () => {
           <Plus className="h-4 w-4 mr-2" />
           Add Award
         </button>
-      </div>
-
-      {showForm && (
+      }
+    >
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          {showForm && (
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">
             {editingAward ? 'Edit Award' : 'Add New Award'}
@@ -295,9 +295,9 @@ const AwardsManagement = () => {
             </div>
           </form>
         </div>
-      )}
+          )}
 
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -367,8 +367,10 @@ const AwardsManagement = () => {
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
+          </div>
+        </div>
+      )}
+    </AdminPageWrapper>
   );
 };
 

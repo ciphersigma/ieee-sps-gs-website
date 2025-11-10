@@ -2,12 +2,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Calendar, Plus, Search, Filter, Trash2, Edit, ChevronDown, 
-  ChevronLeft, ChevronRight, Loader, AlertCircle, X, ExternalLink, 
-  Clock, MapPin 
+  Calendar, Plus, Trash2, Edit, Loader, AlertCircle
 } from 'lucide-react';
 import { eventsAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import AdminPageWrapper from '../../components/admin/AdminPageWrapper';
 
 const EventsManagement = () => {
   const { user, isSuperAdmin } = useAuth();
@@ -58,49 +57,39 @@ const EventsManagement = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="py-8">
-        <div className="flex items-center justify-center">
+  return (
+    <AdminPageWrapper
+      title="Events Management"
+      subtitle={`Managing events for ${user?.branch || 'your branch'}`}
+      action={
+        <Link
+          to="/admin/events/new"
+          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        >
+          <Plus className="h-5 w-5 mr-2" />
+          Add Event
+        </Link>
+      }
+    >
+      {loading ? (
+        <div className="flex items-center justify-center py-12">
           <Loader className="h-8 w-8 text-blue-500 animate-spin" />
           <span className="ml-2">Loading events...</span>
         </div>
-      </div>
-    );
-  }
+      ) : (
 
-  return (
-    <div className="py-8">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold">Events Management</h1>
-            {!isSuperAdmin() && (
-              <p className="text-gray-600">Managing events for {user.branch}</p>
-            )}
-          </div>
-          <Link
-            to="/admin/events/new"
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Add Event
-          </Link>
-        </div>
+        <>
+          {error && (
+            <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-md flex items-center">
+              <AlertCircle className="h-5 w-5 mr-2" />
+              {error}
+            </div>
+          )}
 
-        {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-800 rounded-md flex items-center">
-            <AlertCircle className="h-5 w-5 mr-2" />
-            {error}
-          </div>
-        )}
-
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="font-semibold">
-              {isSuperAdmin() ? 'All Events' : `${user.branch} Events`} ({events.length})
-            </h2>
-          </div>
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="font-semibold">Branch Events ({events.length})</h2>
+            </div>
 
           {events.length === 0 ? (
             <div className="py-12 text-center text-gray-500">
@@ -192,9 +181,10 @@ const EventsManagement = () => {
               </table>
             </div>
           )}
-        </div>
-      </div>
-    </div>
+          </div>
+        </>
+      )}
+    </AdminPageWrapper>
   );
 };
 

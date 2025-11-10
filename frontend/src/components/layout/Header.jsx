@@ -447,7 +447,6 @@ const Header = () => {
             >
               Contact
             </Link>
-
           </nav>
 
           {/* Right side - Menu and Join button */}
