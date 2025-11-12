@@ -2,25 +2,27 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Calendar, MapPin, Users, ArrowLeft } from 'lucide-react';
+import { Plus, Edit, Trash2, Mail, Phone, ArrowLeft, Search } from 'lucide-react';
 
-interface Event {
+interface Member {
   id: string;
-  title: string;
-  date: string;
-  location: string;
-  attendees: number;
-  status: 'upcoming' | 'ongoing' | 'completed';
+  name: string;
+  email: string;
+  phone: string;
+  position: string;
+  joinDate: string;
+  status: 'active' | 'inactive';
 }
 
-export default function EventsManagement() {
-  const [events, setEvents] = useState<Event[]>([
-    { id: '1', title: 'AI Workshop', date: '2024-02-15', location: 'SVNIT Surat', attendees: 45, status: 'upcoming' },
-    { id: '2', title: 'Signal Processing Seminar', date: '2024-01-20', location: 'GTU Ahmedabad', attendees: 78, status: 'completed' },
-    { id: '3', title: 'IEEE Conference', date: '2024-03-10', location: 'IIT Gandhinagar', attendees: 120, status: 'upcoming' }
+export default function MembersManagement() {
+  const [members, setMembers] = useState<Member[]>([
+    { id: '1', name: 'Dr. Rajesh Patel', email: 'rajesh@example.com', phone: '+91 98765 43210', position: 'Chair', joinDate: '2023-01-15', status: 'active' },
+    { id: '2', name: 'Prof. Priya Shah', email: 'priya@example.com', phone: '+91 87654 32109', position: 'Vice Chair', joinDate: '2023-02-20', status: 'active' },
+    { id: '3', name: 'Dr. Amit Kumar', email: 'amit@example.com', phone: '+91 76543 21098', position: 'Secretary', joinDate: '2023-03-10', status: 'inactive' }
   ]);
   const [showForm, setShowForm] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [editingMember, setEditingMember] = useState<Member | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -30,46 +32,48 @@ export default function EventsManagement() {
     }
   }, [router]);
 
+  const filteredMembers = members.filter(member =>
+    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    member.position.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleDelete = (id: string) => {
-    if (confirm('Are you sure you want to delete this event?')) {
-      setEvents(events.filter(event => event.id !== id));
+    if (confirm('Are you sure you want to delete this member?')) {
+      setMembers(members.filter(member => member.id !== id));
     }
   };
 
-  const handleEdit = (event: Event) => {
-    setEditingEvent(event);
+  const handleEdit = (member: Member) => {
+    setEditingMember(member);
     setShowForm(true);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const eventData = {
-      id: editingEvent?.id || Date.now().toString(),
-      title: formData.get('title') as string,
-      date: formData.get('date') as string,
-      location: formData.get('location') as string,
-      attendees: parseInt(formData.get('attendees') as string) || 0,
-      status: formData.get('status') as 'upcoming' | 'ongoing' | 'completed'
+    const memberData = {
+      id: editingMember?.id || Date.now().toString(),
+      name: formData.get('name') as string,
+      email: formData.get('email') as string,
+      phone: formData.get('phone') as string,
+      position: formData.get('position') as string,
+      joinDate: formData.get('joinDate') as string,
+      status: formData.get('status') as 'active' | 'inactive'
     };
 
-    if (editingEvent) {
-      setEvents(events.map(event => event.id === editingEvent.id ? eventData : event));
+    if (editingMember) {
+      setMembers(members.map(member => member.id === editingMember.id ? memberData : member));
     } else {
-      setEvents([...events, eventData]);
+      setMembers([...members, memberData]);
     }
 
     setShowForm(false);
-    setEditingEvent(null);
+    setEditingMember(null);
   };
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'upcoming': return 'bg-blue-100 text-blue-800';
-      case 'ongoing': return 'bg-green-100 text-green-800';
-      case 'completed': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+    return status === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
   };
 
   return (
@@ -84,14 +88,14 @@ export default function EventsManagement() {
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
-              <h1 className="text-xl font-semibold text-gray-900">Events Management</h1>
+              <h1 className="text-xl font-semibold text-gray-900">Members Management</h1>
             </div>
             <button
               onClick={() => setShowForm(true)}
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700"
             >
               <Plus className="w-4 h-4 mr-2" />
-              Add Event
+              Add Member
             </button>
           </div>
         </div>
@@ -99,42 +103,55 @@ export default function EventsManagement() {
 
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
+          <div className="mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search members..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
           <div className="bg-white shadow overflow-hidden sm:rounded-md">
             <ul className="divide-y divide-gray-200">
-              {events.map((event) => (
-                <li key={event.id} className="px-6 py-4">
+              {filteredMembers.map((member) => (
+                <li key={member.id} className="px-6 py-4">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-medium text-gray-900">{event.title}</h3>
-                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(event.status)}`}>
-                          {event.status}
+                        <h3 className="text-lg font-medium text-gray-900">{member.name}</h3>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(member.status)}`}>
+                          {member.status}
                         </span>
                       </div>
+                      <p className="text-sm text-gray-600 mt-1">{member.position}</p>
                       <div className="mt-2 flex items-center text-sm text-gray-500 space-x-4">
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {event.date}
+                          <Mail className="w-4 h-4 mr-1" />
+                          {member.email}
                         </div>
                         <div className="flex items-center">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          {event.location}
+                          <Phone className="w-4 h-4 mr-1" />
+                          {member.phone}
                         </div>
-                        <div className="flex items-center">
-                          <Users className="w-4 h-4 mr-1" />
-                          {event.attendees} attendees
+                        <div>
+                          Joined: {member.joinDate}
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center space-x-2 ml-4">
                       <button
-                        onClick={() => handleEdit(event)}
+                        onClick={() => handleEdit(member)}
                         className="p-2 text-gray-400 hover:text-blue-600"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(event.id)}
+                        onClick={() => handleDelete(member.id)}
                         className="p-2 text-gray-400 hover:text-red-600"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -152,45 +169,55 @@ export default function EventsManagement() {
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
           <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
             <h3 className="text-lg font-bold text-gray-900 mb-4">
-              {editingEvent ? 'Edit Event' : 'Add New Event'}
+              {editingMember ? 'Edit Member' : 'Add New Member'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700">Title</label>
+                <label className="block text-sm font-medium text-gray-700">Name</label>
                 <input
                   type="text"
-                  name="title"
-                  defaultValue={editingEvent?.title}
+                  name="name"
+                  defaultValue={editingMember?.name}
                   required
                   className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
+                <label className="block text-sm font-medium text-gray-700">Email</label>
+                <input
+                  type="email"
+                  name="email"
+                  defaultValue={editingMember?.email}
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Phone</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  defaultValue={editingMember?.phone}
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Position</label>
+                <input
+                  type="text"
+                  name="position"
+                  defaultValue={editingMember?.position}
+                  required
+                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Join Date</label>
                 <input
                   type="date"
-                  name="date"
-                  defaultValue={editingEvent?.date}
+                  name="joinDate"
+                  defaultValue={editingMember?.joinDate}
                   required
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Location</label>
-                <input
-                  type="text"
-                  name="location"
-                  defaultValue={editingEvent?.location}
-                  required
-                  className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Attendees</label>
-                <input
-                  type="number"
-                  name="attendees"
-                  defaultValue={editingEvent?.attendees}
                   className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
@@ -198,12 +225,11 @@ export default function EventsManagement() {
                 <label className="block text-sm font-medium text-gray-700">Status</label>
                 <select
                   name="status"
-                  defaultValue={editingEvent?.status}
+                  defaultValue={editingMember?.status}
                   className="mt-1 block w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-primary-500 focus:border-primary-500"
                 >
-                  <option value="upcoming">Upcoming</option>
-                  <option value="ongoing">Ongoing</option>
-                  <option value="completed">Completed</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
                 </select>
               </div>
               <div className="flex justify-end space-x-3 pt-4">
@@ -211,7 +237,7 @@ export default function EventsManagement() {
                   type="button"
                   onClick={() => {
                     setShowForm(false);
-                    setEditingEvent(null);
+                    setEditingMember(null);
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                 >
@@ -221,7 +247,7 @@ export default function EventsManagement() {
                   type="submit"
                   className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700"
                 >
-                  {editingEvent ? 'Update' : 'Create'}
+                  {editingMember ? 'Update' : 'Create'}
                 </button>
               </div>
             </form>
