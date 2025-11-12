@@ -128,14 +128,14 @@ const AdminRoutes = () => {
 
       {/* Branch Management - Super Admin Only */}
       <Route path="branches" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="branches">
           <AdminLayout>
             <BranchManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="branches/:branchId/users" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="branches">
           <AdminLayout>
             <BranchUserManagement />
           </AdminLayout>
@@ -144,9 +144,9 @@ const AdminRoutes = () => {
 
 
 
-      {/* Carousel Management - Super Admin Only */}
+      {/* Carousel Management */}
       <Route path="carousel" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="carousel">
           <AdminLayout>
             <CarouselManager />
           </AdminLayout>
@@ -155,7 +155,7 @@ const AdminRoutes = () => {
 
       {/* Profile */}
       <Route path="profile" element={
-        <ProtectedRoute>
+        <ProtectedRoute requiredPermission="profile">
           <AdminLayout>
             <ProfilePage />
           </AdminLayout>
@@ -194,50 +194,57 @@ const AdminRoutes = () => {
         </ProtectedRoute>
       } />
 
-      {/* Research Management - Super Admin Only */}
+      {/* Research Management */}
       <Route path="research" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="research">
           <AdminLayout>
             <ResearchManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="research/:type/new" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="research">
           <AdminLayout>
             <ResearchForm />
           </AdminLayout>
         </ProtectedRoute>
       } />
       <Route path="research/:type/edit/:id" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="research">
           <AdminLayout>
             <ResearchForm />
           </AdminLayout>
         </ProtectedRoute>
       } />
 
-      {/* Admin Management - Super Admin Only */}
+      {/* Admin Management */}
       <Route path="admins" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="admins">
+          <AdminLayout>
+            <AdminManagement />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      <Route path="users" element={
+        <ProtectedRoute requiredPermission="admins">
           <AdminLayout>
             <AdminManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />
 
-      {/* Awards Management - Super Admin Only */}
+      {/* Awards Management */}
       <Route path="awards" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="awards">
           <AdminLayout>
             <AwardsManagement />
           </AdminLayout>
         </ProtectedRoute>
       } />
 
-      {/* Newsletter Management - Super Admin Only */}
+      {/* Newsletter Management */}
       <Route path="newsletter" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="newsletter">
           <AdminLayout>
             <NewsletterManagement />
           </AdminLayout>
@@ -281,11 +288,23 @@ const AdminRoutes = () => {
         </ProtectedRoute>
       } />
 
-      {/* Database Migration - Super Admin Only */}
+      {/* Database Migration */}
       <Route path="migration" element={
-        <ProtectedRoute requiredRole={USER_ROLES.SUPER_ADMIN}>
+        <ProtectedRoute requiredPermission="migration">
           <AdminLayout>
             <DatabaseMigration />
+          </AdminLayout>
+        </ProtectedRoute>
+      } />
+      
+      {/* Analytics Route */}
+      <Route path="analytics" element={
+        <ProtectedRoute>
+          <AdminLayout>
+            <div className="p-6">
+              <h1 className="text-2xl font-bold mb-4">Analytics Dashboard</h1>
+              <p className="text-gray-600">Analytics features coming soon...</p>
+            </div>
           </AdminLayout>
         </ProtectedRoute>
       } />

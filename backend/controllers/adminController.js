@@ -1,5 +1,7 @@
-const { CarouselImage, SiteStats, UserRole } = require('../models/Website');
+const { CarouselImage, SiteStats, UserRole, Event, News } = require('../models/Website');
 const { uploadToCloudinary } = require('../config/cloudinary');
+const User = require('../models/User');
+const Branch = require('../models/Branch');
 
 const adminController = {
   // Carousel
@@ -135,6 +137,75 @@ const adminController = {
       res.json(user);
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  },
+
+  // Dashboard Stats
+  getDashboardStats: async (req, res) => {
+    try {
+      const { branchId } = req.query;
+      const now = new Date();
+      const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+      
+      let eventFilter = { is_active: true };
+      let eventFilterLastMonth = { is_active: true, createdAt: { $lt: lastMonth } };
+      
+      if (branchId) {
+        eventFilter.branch = branchId;
+        eventFilterLastMonth.branch = branchId;
+      }
+      
+      const [totalEvents, totalEventsLastMonth, totalBranches, totalMembers, totalUsers, totalNews] = await Promise.all([
+        Event.countDocuments(eventFilter).catch(() => 0),
+        Event.countDocuments(eventFilterLastMonth).catch(() => 0),
+        Branch.countDocuments({ is_active: true }).catch(() => 0),
+        UserRole.countDocuments({ role: 'member', is_active: true }).catch(() => 0),
+        User.countDocuments({ is_active: true }).catch(() => 0),
+        News.countDocuments({ published: true }).catch(() => 0)
+      ]);
+      
+      // Calculate upcoming events
+      const upcomingEvents = await Event.countDocuments({
+        ...eventFilter,
+        event_date: { $gte: now },
+        status: { $in: ['upcoming', 'ongoing'] }
+      }).catch(() => 0);
+      
+      // Calculate growth percentages
+      const eventsGrowth = totalEventsLastMonth > 0 
+        ? Math.round(((totalEvents - totalEventsLastMonth) / totalEventsLastMonth) * 100)
+        : 0;
+      
+      const stats = {
+        totalEvents,
+        upcomingEvents,
+        totalBranches,
+        totalMembers,
+        totalUsers,
+        totalNews,
+        systemActivity: totalEvents + totalBranches + totalUsers,
+        recentActivity: totalEvents + totalNews,
+        eventsGrowth: eventsGrowth > 0 ? `+${eventsGrowth}%` : `${eventsGrowth}%`
+      };
+      
+      res.json({ success: true, data: stats });
+    } catch (error) {
+      console.error('Dashboard stats error:', error);
+      res.status(500).json({ 
+        success: false, 
+        error: 'Failed to fetch dashboard statistics',
+        data: {
+          totalEvents: 0,
+          upcomingEvents: 0,
+          totalBranches: 0,
+          totalMembers: 0,
+          totalUsers: 0,
+          totalNews: 0,
+          systemActivity: 0,
+          recentActivity: 0,
+          eventsGrowth: '0%'
+        }
+      });
     }
   }
 };

@@ -4,14 +4,44 @@ const contentController = {
   // News
   getNews: async (req, res) => {
     try {
-      const filter = {};
-      if (req.query.published === 'true') filter.published = true;
+      const filter = { published: true }; // Only show published news by default
+      
+      // Allow admins to see unpublished content
+      const authHeader = req.headers['authorization'];
+      if (authHeader) {
+        const token = authHeader.split(' ')[1];
+        if (token) {
+          try {
+            const jwt = require('jsonwebtoken');
+            const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            const User = require('../models/User');
+            const user = await User.findById(decoded.userId);
+            
+            // Admins can see all news including unpublished
+            if (user && ['super_admin', 'admin', 'branch_admin'].includes(user.role)) {
+              delete filter.published;
+              if (req.query.published === 'true') filter.published = true;
+              if (req.query.published === 'false') filter.published = false;
+            }
+          } catch (jwtError) {
+            // Continue with published filter for non-authenticated users
+          }
+        }
+      }
+      
       if (req.query.featured === 'true') filter.featured = true;
       
-      const news = await News.find(filter).sort({ createdAt: -1 });
-      res.json(news);
+      const limit = req.query.limit ? parseInt(req.query.limit) : 0;
+      
+      let query = News.find(filter).sort({ createdAt: -1 });
+      if (limit > 0) {
+        query = query.limit(limit);
+      }
+      
+      const news = await query;
+      res.json({ success: true, data: news });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, error: error.message, data: [] });
     }
   },
 

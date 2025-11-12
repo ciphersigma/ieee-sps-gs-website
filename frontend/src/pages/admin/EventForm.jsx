@@ -5,7 +5,7 @@ import {
   Calendar, Clock, MapPin, Tag, Upload, Trash2, AlertTriangle, 
   ArrowLeft, Save, ExternalLink, X, Info 
 } from 'lucide-react';
-import { eventsAPI, api } from '../../services/api';
+import { eventsAPI, api, branchAPI } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 
 const EventForm = () => {
@@ -35,12 +35,27 @@ const EventForm = () => {
   const [success, setSuccess] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [branches, setBranches] = useState([]);
 
   useEffect(() => {
+    fetchBranches();
     if (isEditMode) {
       fetchEventData();
     }
   }, [isEditMode, id]);
+
+  const fetchBranches = async () => {
+    try {
+      const response = await branchAPI.getBranches();
+      console.log('Branches response:', response);
+      const branchData = response.data?.data || response.data || [];
+      console.log('Branch data:', branchData);
+      setBranches(Array.isArray(branchData) ? branchData : []);
+    } catch (err) {
+      console.error('Error fetching branches:', err);
+      setBranches([]);
+    }
+  };
 
   const fetchEventData = async () => {
     try {
@@ -74,7 +89,7 @@ const EventForm = () => {
         registration_url: eventData.registration_url || '',
         contact_email: eventData.contact_email || '',
         image_url: eventData.image_url || '',
-        branch: eventData.branch || (isSuperAdmin() ? '' : user.branch)
+        branch: eventData.branch?._id || eventData.branch || (isSuperAdmin() ? '' : user.branchId || user.branch)
       });
       
       if (eventData.image_url) {
@@ -135,13 +150,13 @@ const EventForm = () => {
         status: formData.status,
         registration_url: formData.registration_url,
         image_url: formData.image_url,
-        branch: formData.branch
+        branch: formData.branch || (isSuperAdmin() ? '' : user.branchId || user.branch)
       };
 
       // Create FormData for file upload
       const submitData = new FormData();
       Object.keys(eventData).forEach(key => {
-        if (eventData[key]) {
+        if (eventData[key] !== null && eventData[key] !== undefined && eventData[key] !== '') {
           submitData.append(key, eventData[key]);
         }
       });
@@ -167,8 +182,17 @@ const EventForm = () => {
           });
 
       const response = await apiCall();
+      
       if (!response.ok) {
-        throw new Error('Failed to save event');
+        const errorData = await response.text();
+        let errorMessage = 'Failed to save event';
+        try {
+          const parsedError = JSON.parse(errorData);
+          errorMessage = parsedError.error || parsedError.message || errorMessage;
+        } catch {
+          errorMessage = errorData || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       setSuccess(true);
@@ -178,7 +202,7 @@ const EventForm = () => {
 
     } catch (err) {
       console.error('Error saving event:', err);
-      setError(`Failed to save event: ${err.response?.data?.error || err.message}`);
+      setError(`Failed to save event: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -345,13 +369,24 @@ const EventForm = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">Select Branch</option>
-                  <option value="Gujarat University">Gujarat University</option>
-                  <option value="NIT Surat">NIT Surat</option>
-                  <option value="IIT Gandhinagar">IIT Gandhinagar</option>
-                  <option value="DA-IICT Gandhinagar">DA-IICT Gandhinagar</option>
-                  <option value="SVNIT Surat">SVNIT Surat</option>
-                  <option value="Nirma University">Nirma University</option>
-                  <option value="Pandit Deendayal Energy University">Pandit Deendayal Energy University</option>
+                  {Array.isArray(branches) && branches.length > 0 ? (
+                    branches.map(branch => (
+                      <option key={branch._id} value={branch._id}>
+                        {branch.name}
+                      </option>
+                    ))
+                  ) : (
+                    // Fallback options if no branches loaded
+                    <>
+                      <option value="gujarat-university">Gujarat University</option>
+                      <option value="nit-surat">NIT Surat</option>
+                      <option value="iit-gandhinagar">IIT Gandhinagar</option>
+                      <option value="da-iict-gandhinagar">DA-IICT Gandhinagar</option>
+                      <option value="svnit-surat">SVNIT Surat</option>
+                      <option value="nirma-university">Nirma University</option>
+                      <option value="pdeu">Pandit Deendayal Energy University</option>
+                    </>
+                  )}
                 </select>
               </div>
             ) : (
@@ -365,7 +400,7 @@ const EventForm = () => {
                   disabled
                   className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-600"
                 />
-                <input type="hidden" name="branch" value={user.branch} />
+                <input type="hidden" name="branch" value={user.branchId || user.branch} />
               </div>
             )}
 

@@ -85,6 +85,29 @@ export function AuthProvider({ children }) {
   const hasPermission = (permission) => {
     if (!user) return false;
     if (user.role === USER_ROLES.SUPER_ADMIN) return true;
+    
+    // Default permissions for all admin functions
+    const defaultPermissions = {
+      'events': ['branch_admin', 'chairperson', 'counsellor', 'member'],
+      'members': ['branch_admin', 'chairperson', 'counsellor'],
+      'content': ['branch_admin', 'chairperson', 'counsellor', 'editor'],
+      'settings': ['branch_admin', 'chairperson'],
+      'profile': ['branch_admin', 'chairperson', 'counsellor', 'member', 'editor'],
+      'awards': ['branch_admin', 'chairperson'],
+      'research': ['branch_admin', 'chairperson'],
+      'newsletter': ['branch_admin', 'chairperson', 'editor'],
+      'carousel': ['branch_admin'],
+      'branches': ['super_admin'],
+      'admins': ['super_admin'],
+      'migration': ['super_admin']
+    };
+    
+    // Check if user role has default permission
+    if (defaultPermissions[permission]?.includes(user.role)) {
+      return true;
+    }
+    
+    // Check explicit permissions
     return user.permissions?.includes(permission) || user.permissions?.includes('all');
   };
 

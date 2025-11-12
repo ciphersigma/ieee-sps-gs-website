@@ -67,7 +67,7 @@ const EventsPage = () => {
     // Filter by event type
     if (activeFilters.types.length > 0) {
       filtered = filtered.filter(event => 
-        activeFilters.types.includes(event.type)
+        activeFilters.types.includes(event.category || event.type)
       );
     }
     
@@ -130,7 +130,7 @@ const EventsPage = () => {
   };
 
   // Get unique event types and years for filter options
-  const eventTypes = [...new Set(events.map(event => event.type))].filter(Boolean);
+  const eventTypes = [...new Set(events.map(event => event.category || event.type))].filter(Boolean);
   const eventYears = [...new Set([
     ...events.map(event => {
       const year = new Date(event.event_date || event.date).getFullYear();
@@ -148,12 +148,16 @@ const EventsPage = () => {
   // Get event type badge color
   const getEventTypeColor = (type) => {
     switch (type) {
+      case 'workshop':
       case 'Workshop':
         return 'bg-blue-100 text-primary-600';
+      case 'seminar':
       case 'Lecture':
         return 'bg-purple-100 text-purple-800';
+      case 'conference':
       case 'Conference':
         return 'bg-red-100 text-red-800';
+      case 'meeting':
       case 'Competition':
         return 'bg-green-100 text-green-800';
       default:
@@ -166,27 +170,27 @@ const EventsPage = () => {
     {
       id: 1,
       title: "International Workshop on Digital Signal Processing",
-      date: "2025-09-15",
+      event_date: "2025-09-15",
       time: "10:00 AM - 4:00 PM",
       location: "IIT Gandhinagar",
-      type: "Workshop",
-      featured: true
+      category: "workshop",
+      is_featured: true
     },
     {
       id: 2,
       title: "IEEE SPS Distinguished Lecture Series",
-      date: "2025-09-22",
+      event_date: "2025-09-22",
       time: "2:00 PM - 4:00 PM",
       location: "NIT Surat",
-      type: "Lecture"
+      category: "seminar"
     },
     {
       id: 3,
       title: "Student Paper Competition 2025",
-      date: "2025-10-05",
+      event_date: "2025-10-05",
       time: "9:00 AM - 6:00 PM",
       location: "DA-IICT Gandhinagar",
-      type: "Competition"
+      category: "other"
     }
   ];
 
@@ -463,7 +467,7 @@ const EventsPage = () => {
                   <div 
                     key={event._id || event.id} 
                     className={`bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 ${
-                      event.featured ? 'ring-2 ring-primary-500' : ''
+                      (event.featured || event.is_featured) ? 'ring-2 ring-primary-500' : ''
                     }`}
                   >
                     {/* Event Image or Color Banner */}
@@ -476,20 +480,20 @@ const EventsPage = () => {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-r from-primary-600 to-primary-500 flex items-center justify-center">
-                          <span className="text-white text-lg font-medium">{event.type || 'Event'}</span>
+                          <span className="text-white text-lg font-medium">{event.category || event.type || 'Event'}</span>
                         </div>
                       )}
                       
                       {/* Featured and Type Tags */}
                       <div className="absolute top-4 right-4">
-                        {event.type && (
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.type)}`}>
-                            {event.type}
+                        {(event.category || event.type) && (
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.category || event.type)}`}>
+                            {event.category || event.type}
                           </span>
                         )}
                       </div>
                       
-                      {event.featured && (
+                      {(event.featured || event.is_featured) && (
                         <div className="absolute top-4 left-4">
                           <span className="px-3 py-1 bg-primary-500 text-white rounded-full text-xs font-medium">
                             Featured

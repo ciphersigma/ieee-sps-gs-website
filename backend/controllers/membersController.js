@@ -28,9 +28,9 @@ const membersController = {
       }
       
       const members = await Member.find(query).sort({ createdAt: -1 });
-      res.json(members);
+      res.json({ success: true, data: members });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ success: false, error: error.message, data: [] });
     }
   },
 

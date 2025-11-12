@@ -27,6 +27,9 @@ router.delete('/carousel/:id', authenticateToken, requireSuperAdmin, adminContro
 router.get('/stats', adminController.getStats);
 router.put('/stats', authenticateToken, adminController.updateStats);
 
+// Dashboard Stats Route
+router.get('/dashboard-stats', authenticateToken, adminController.getDashboardStats);
+
 // User Roles Routes
 router.get('/users', adminController.getUsers);
 router.post('/users', authenticateToken, adminController.createUser);

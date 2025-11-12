@@ -1,32 +1,19 @@
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const { uploadToCloudinary } = require('../config/cloudinary');
-
-const eventSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: String,
-  event_date: { type: Date, required: true },
-  location: String,
-  status: { type: String, enum: ['upcoming', 'ongoing', 'completed'], default: 'upcoming' },
-  image_url: String,
-  registration_url: String,
-  branch: { type: String, required: true },
-  created_by: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
-}, { timestamps: true });
-
-const Event = mongoose.model('Event', eventSchema);
+const { Event } = require('../models/Website');
 
 const eventsController = {
   // Get events (filtered by branch for branch users)
   getEvents: async (req, res) => {
     try {
-      const filter = {};
+      const filter = { is_active: true };
       if (req.query.status) filter.status = req.query.status;
       if (req.query.upcoming === 'true') {
         filter.event_date = { $gte: new Date() };
       }
       
-      // If authenticated user is provided, apply branch filtering
+      // Apply branch filtering based on user permissions
       const authHeader = req.headers['authorization'];
       if (authHeader) {
         const token = authHeader.split(' ')[1];
@@ -37,34 +24,34 @@ const eventsController = {
             const user = await User.findById(decoded.userId);
             
             // Branch users can only see their branch events
-            if (user && ['branch_admin', 'chairperson', 'counsellor', 'member'].includes(user.role)) {
+            if (user && user.role !== 'super_admin' && user.branch_id) {
               filter.branch = user.branch_id;
-            }
-            // Super admins can see all events, or filter by specific branch if requested
-            else if (req.query.branch) {
+            } else if (req.query.branch) {
               filter.branch = req.query.branch;
             }
           } catch (jwtError) {
-            // If token is invalid, continue without filtering (public access)
+            // Public access - apply branch filter if provided
             if (req.query.branch) {
               filter.branch = req.query.branch;
             }
           }
         }
       } else if (req.query.branch) {
-        // Public access with branch filter
         filter.branch = req.query.branch;
       }
       
-      const events = await Event.find(filter)
-        .populate('created_by', 'name email')
-        .sort({ createdAt: -1 });
-      res.json(events);
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') {
-        console.error('Error fetching events:', error);
+      const limit = req.query.limit ? parseInt(req.query.limit) : 0;
+      
+      let query = Event.find(filter).sort({ event_date: -1, createdAt: -1 });
+      if (limit > 0) {
+        query = query.limit(limit);
       }
-      res.status(500).json({ error: error.message });
+      
+      const events = await query;
+      res.json({ success: true, data: events });
+    } catch (error) {
+      console.error('Error fetching events:', error);
+      res.status(500).json({ success: false, error: error.message, data: [] });
     }
   },
 
@@ -89,8 +76,7 @@ const eventsController = {
       const eventData = {
         ...req.body,
         image_url: imageUrl,
-        branch: req.user.role === 'super_admin' ? req.body.branch : req.user.branch_id,
-        created_by: req.user._id
+        branch: req.body.branch || (req.user ? req.user.branch_id : null)
       };
       
       const event = new Event(eventData);

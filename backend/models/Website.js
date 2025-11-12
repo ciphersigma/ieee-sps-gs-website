@@ -97,10 +97,33 @@ const carouselImageSchema = new mongoose.Schema({
   is_active: { type: Boolean, default: true }
 }, { timestamps: true });
 
+// Events Schema
+const eventSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: String,
+  event_date: { type: Date, required: true },
+  end_date: Date,
+  location: String,
+  venue: String,
+  organizer: String,
+  contact_email: String,
+  contact_phone: String,
+  registration_url: String,
+  image_url: String,
+  category: { type: String, enum: ['workshop', 'seminar', 'conference', 'meeting', 'other'], default: 'other' },
+  status: { type: String, enum: ['upcoming', 'ongoing', 'completed', 'cancelled'], default: 'upcoming' },
+  branch: { type: mongoose.Schema.Types.ObjectId, ref: 'Branch' },
+  is_featured: { type: Boolean, default: false },
+  is_active: { type: Boolean, default: true },
+  max_participants: Number,
+  registration_deadline: Date,
+  tags: [String]
+}, { timestamps: true });
+
 // User Roles Schema (for admin management)
 const userRoleSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  role: { type: String, enum: ['admin', 'super_admin', 'editor'], default: 'admin' },
+  role: { type: String, enum: ['admin', 'super_admin', 'editor', 'member'], default: 'admin' },
   name: String,
   is_active: { type: Boolean, default: true },
   last_login: Date,
@@ -116,5 +139,6 @@ module.exports = {
   Achievement: mongoose.model('Achievement', achievementSchema),
   SiteStats: mongoose.model('SiteStats', siteStatsSchema),
   CarouselImage: mongoose.model('CarouselImage', carouselImageSchema),
-  UserRole: mongoose.model('UserRole', userRoleSchema)
+  UserRole: mongoose.model('UserRole', userRoleSchema),
+  Event: mongoose.model('Event', eventSchema)
 };

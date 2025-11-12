@@ -28,8 +28,12 @@ const MembersManagement = () => {
         membersAPI.getExecutive()
       ]);
 
-      setMembers(membersResult.data || []);
-      setExecutive(executiveResult.data || []);
+      // Handle nested data structure
+      const membersData = Array.isArray(membersResult.data) ? membersResult.data : (membersResult.data?.data || []);
+      const executiveData = Array.isArray(executiveResult.data) ? executiveResult.data : (executiveResult.data?.data || []);
+      
+      setMembers(membersData);
+      setExecutive(executiveData);
     } catch (error) {
       console.error('Error fetching members data:', error);
       setError('Failed to load members data');

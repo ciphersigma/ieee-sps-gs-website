@@ -21,14 +21,19 @@ const EventsManagement = () => {
   const fetchEvents = async () => {
     try {
       setLoading(true);
+      setError(null);
       
       // Branch admins only see their branch events
-      const params = isSuperAdmin() ? {} : { branch: user.branch };
+      const params = isSuperAdmin() ? {} : { branch: user.branch_id };
       const response = await eventsAPI.getEvents(params);
-      setEvents(response.data || []);
+      
+      // Handle nested data structure
+      const eventsData = Array.isArray(response.data) ? response.data : (response.data?.data || []);
+      setEvents(eventsData);
     } catch (err) {
       console.error('Error fetching events:', err);
       setError('Failed to load events');
+      setEvents([]);
     } finally {
       setLoading(false);
     }
@@ -38,19 +43,9 @@ const EventsManagement = () => {
     if (!confirm('Are you sure you want to delete this event?')) return;
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api'}/events/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('ieee_admin_token')}`
-        }
-      });
-      
-      if (response.ok) {
-        setEvents(events.filter(event => event._id !== id));
-      } else {
-        const error = await response.json();
-        throw new Error(error.error);
-      }
+      await eventsAPI.deleteEvent(id);
+      setEvents(events.filter(event => event._id !== id));
+      setError(null);
     } catch (err) {
       console.error('Error deleting event:', err);
       setError(err.message || 'Failed to delete event');

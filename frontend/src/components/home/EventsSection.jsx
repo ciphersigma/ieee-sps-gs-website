@@ -16,9 +16,21 @@ const EventsSection = () => {
         
         // Get today's date in ISO format
         const today = new Date().toISOString().split('T')[0];
+        console.log('Today:', today);
         
         // Fetch featured and upcoming events from API
-        const data = await api.getUpcomingEvents(3);
+        let data = await api.getUpcomingEvents(3);
+        console.log('Upcoming events data:', data);
+        
+        // If no upcoming events, try to get all events
+        if (!data || data.length === 0) {
+          console.log('No upcoming events, fetching all events...');
+          data = await api.getAllEvents();
+          console.log('All events data:', data);
+          // Take only the first 3 events
+          data = data ? data.slice(0, 3) : [];
+        }
+        
         setUpcomingEvents(data || []);
       } catch (err) {
         console.error('Error fetching events:', err);
@@ -34,14 +46,19 @@ const EventsSection = () => {
   // Get event type badge color
   const getEventTypeColor = (type) => {
     switch (type) {
+      case 'workshop':
       case 'Workshop':
         return 'bg-blue-100 text-primary-600';
+      case 'seminar':
       case 'Lecture':
         return 'bg-purple-100 text-purple-800';
+      case 'conference':
       case 'Conference':
         return 'bg-red-100 text-red-800';
+      case 'meeting':
       case 'Competition':
         return 'bg-green-100 text-green-800';
+      case 'other':
       case 'Webinar':
         return 'bg-teal-100 text-teal-800';
       default:
@@ -159,7 +176,7 @@ const EventsSection = () => {
             <div 
               key={event._id} 
               className={`bg-white rounded-xl overflow-hidden shadow-md transition-all hover:shadow-lg hover:translate-y-[-4px] ${
-                event.featured ? 'ring-2 ring-primary-500' : ''
+                (event.featured || event.is_featured) ? 'ring-2 ring-primary-500' : ''
               }`}
             >
               {/* Event image (optional) */}
@@ -168,21 +185,21 @@ const EventsSection = () => {
                   <img src={event.image_url} alt={event.title} className="w-full h-full object-cover" />
                 ) : (
                   <div className="h-full w-full bg-gradient-to-r from-primary-600 to-primary-500 flex items-center justify-center">
-                    <span className="text-white font-medium text-lg">{event.type || 'Event'}</span>
+                    <span className="text-white font-medium text-lg">{event.category || event.type || 'Event'}</span>
                   </div>
                 )}
                 
                 {/* Event Type Badge */}
-                {event.type && (
+                {(event.category || event.type) && (
                   <div className="absolute top-4 right-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.type)}`}>
-                      {event.type}
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getEventTypeColor(event.category || event.type)}`}>
+                      {event.category || event.type}
                     </span>
                   </div>
                 )}
                 
                 {/* Featured Badge */}
-                {event.featured && (
+                {(event.featured || event.is_featured) && (
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 bg-primary-500 text-white rounded-full text-xs font-medium">
                       Featured

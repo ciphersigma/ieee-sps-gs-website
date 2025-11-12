@@ -137,6 +137,10 @@ export const adminAPI = {
   deleteCarousel: (id) => apiClient.delete(`/admin/carousel/${id}`),
   getSiteStats: () => apiClient.get('/admin/stats'),
   updateSiteStats: (data) => apiClient.put('/admin/stats', data),
+  getDashboardStats: (branchId = null) => {
+    const params = branchId ? `?branchId=${branchId}` : '';
+    return apiClient.get(`/admin/dashboard-stats${params}`);
+  },
   getUsers: () => apiClient.get('/users'),
   createUser: (data) => apiClient.post('/users', data),
   updateUser: (id, data) => apiClient.put(`/users/${id}`, data),
@@ -159,15 +163,15 @@ export const api = {
   // Events
   getAllEvents: async () => {
     const response = await publicApiClient.get('/events');
-    return response.data;
+    return response.data.data || response.data;
   },
   getUpcomingEvents: async (limit = 10) => {
     const response = await publicApiClient.get(`/events?upcoming=true&limit=${limit}`);
-    return response.data;
+    return response.data.data || response.data;
   },
   getEventById: async (id) => {
     const response = await publicApiClient.get(`/events/${id}`);
-    return response.data;
+    return response.data.data || response.data;
   },
 
   // Members
@@ -281,6 +285,12 @@ export const api = {
   },
   updateResearchStats: async (data) => {
     const response = await researchAPI.updateStats(data);
+    return response.data;
+  },
+  
+  // Dashboard Stats
+  getDashboardStats: async (branchId = null) => {
+    const response = await adminAPI.getDashboardStats(branchId);
     return response.data;
   },
 };
